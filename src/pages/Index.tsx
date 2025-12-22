@@ -12,23 +12,23 @@ import heroBg from "@/assets/hero-bg.jpg";
 const services = [
   {
     icon: Users,
-    title: "Event Companion",
-    description: "Never attend an event alone. Our companions are perfect for galas, weddings, and corporate functions.",
+    title: "Teman Acara",
+    description: "Butuh partner buat dateng ke pesta, nikahan, atau event kampus? Kita siapin yang paling cocok buat kamu!",
   },
   {
     icon: Heart,
-    title: "Dining Partner",
-    description: "Enjoy fine dining with engaging conversation. Perfect for business dinners or romantic restaurants.",
+    title: "Teman Makan",
+    description: "Pengen makan di resto bagus tapi males sendirian? Cari temen makan yang asik di sini!",
   },
   {
     icon: Calendar,
-    title: "Travel Companion",
-    description: "Explore new destinations with a charming partner. Make your travels more memorable.",
+    title: "Teman Traveling",
+    description: "Liburan jadi lebih seru kalau ada temen! Explore tempat baru bareng partner yang asyik.",
   },
   {
     icon: Shield,
-    title: "Social Events",
-    description: "From art galleries to sports events, have confident company in any social setting.",
+    title: "Teman Hangout",
+    description: "Dari nongkrong di cafe, nonton bioskop, sampe karaoke. Semua jadi lebih fun!",
   },
 ];
 
@@ -43,7 +43,7 @@ const Index = () => {
         <div className="absolute inset-0">
           <img
             src={heroBg}
-            alt="Elegant couple at upscale event"
+            alt="Background"
             className="w-full h-full object-cover"
           />
           <div className="absolute inset-0 bg-gradient-to-b from-background/60 via-background/80 to-background" />
@@ -63,28 +63,28 @@ const Index = () => {
               transition={{ delay: 0.5 }}
               className="inline-block px-4 py-2 rounded-full border border-primary/30 text-primary text-sm font-medium mb-6"
             >
-              Premium Companion Service (18+)
+              Layanan Teman Rental (18+)
             </motion.span>
             
             <h1 className="text-5xl md:text-7xl font-display font-bold text-foreground leading-tight mb-6">
-              Experience <span className="text-gradient-gold">Genuine</span> Connection
+              Cari <span className="text-gradient-gold">Teman</span> Seru Buat Hangout!
             </h1>
             
             <p className="text-xl text-muted-foreground mb-10 leading-relaxed">
-              Hire a sophisticated companion to accompany you to events, dinners, 
-              or simply spend quality time together. Professional, discreet, unforgettable.
+              Butuh partner buat acara, makan bareng, atau sekadar ngobrol santai? 
+              Di sini tempatnya! Aman, profesional, dan pastinya seru abis! ✨
             </p>
 
             <div className="flex flex-col sm:flex-row gap-4 justify-center">
               <Button variant="hero" size="xl" asChild>
                 <Link to="/companions">
-                  Browse Companions
+                  Lihat Semua Teman
                   <ChevronRight size={20} />
                 </Link>
               </Button>
               <Button variant="heroOutline" size="xl" asChild>
                 <Link to="/rules">
-                  How It Works
+                  Gimana Caranya?
                 </Link>
               </Button>
             </div>
@@ -98,15 +98,15 @@ const Index = () => {
             >
               <div className="flex items-center gap-2">
                 <Shield size={20} className="text-primary" />
-                <span className="text-sm">Verified Profiles</span>
+                <span className="text-sm">Profil Terverifikasi</span>
               </div>
               <div className="flex items-center gap-2">
                 <Star size={20} className="text-primary" />
-                <span className="text-sm">5-Star Rated</span>
+                <span className="text-sm">Rating Bintang 5</span>
               </div>
               <div className="flex items-center gap-2">
                 <Heart size={20} className="text-primary" />
-                <span className="text-sm">100% Discreet</span>
+                <span className="text-sm">100% Aman</span>
               </div>
             </motion.div>
           </motion.div>
@@ -123,14 +123,13 @@ const Index = () => {
             className="text-center mb-16"
           >
             <span className="text-primary font-medium text-sm tracking-wider uppercase">
-              Our Services
+              Layanan Kami
             </span>
             <h2 className="text-4xl md:text-5xl font-display font-bold text-foreground mt-4">
-              Premium Companionship
+              Mau Ngapain Hari Ini?
             </h2>
             <p className="text-muted-foreground mt-4 max-w-2xl mx-auto">
-              From elegant events to casual outings, find the perfect companion 
-              for any occasion.
+              Dari acara formal sampe hangout santai, kita punya teman yang pas buat setiap momen!
             </p>
           </motion.div>
 
@@ -170,15 +169,15 @@ const Index = () => {
           >
             <div>
               <span className="text-primary font-medium text-sm tracking-wider uppercase">
-                Featured
+                Pilihan Populer
               </span>
               <h2 className="text-4xl md:text-5xl font-display font-bold text-foreground mt-4">
-                Our Companions
+                Teman Favorit
               </h2>
             </div>
             <Button variant="outline" className="mt-6 md:mt-0" asChild>
               <Link to="/companions">
-                View All
+                Lihat Semua
                 <ChevronRight size={16} />
               </Link>
             </Button>
@@ -206,14 +205,14 @@ const Index = () => {
             className="max-w-3xl mx-auto text-center"
           >
             <h2 className="text-4xl md:text-5xl font-display font-bold text-foreground mb-6">
-              Ready for an <span className="text-gradient-gold">Unforgettable</span> Experience?
+              Siap Cari <span className="text-gradient-gold">Teman Seru</span>?
             </h2>
             <p className="text-muted-foreground text-lg mb-10">
-              Browse our curated selection of companions and book your perfect match today.
+              Yuk langsung cek teman-teman keren yang udah siap nemenin kamu!
             </p>
             <Button variant="hero" size="xl" asChild>
               <Link to="/companions">
-                Find Your Companion
+                Mulai Sekarang
                 <ChevronRight size={20} />
               </Link>
             </Button>

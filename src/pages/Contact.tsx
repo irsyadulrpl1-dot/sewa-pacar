@@ -10,7 +10,6 @@ import {
   MessageCircle,
   Mail,
   Clock,
-  ChevronDown,
 } from "lucide-react";
 import {
   Accordion,
@@ -22,34 +21,34 @@ import { useToast } from "@/hooks/use-toast";
 
 const faqs = [
   {
-    question: "How do I book a companion?",
+    question: "Gimana cara booking teman?",
     answer:
-      "Browse our companion profiles, select your preferred companion, and click the 'Book via WhatsApp' button. You'll be connected directly to arrange the details of your booking including date, time, and duration.",
+      "Gampang banget! Cari teman yang kamu suka, klik profil mereka, terus klik tombol 'Booking via WhatsApp'. Nanti langsung terhubung buat atur jadwal dan detail lainnya.",
   },
   {
-    question: "What payment methods do you accept?",
+    question: "Pembayarannya gimana?",
     answer:
-      "Payment is arranged directly between you and the companion. Most companions accept bank transfer, PayPal, or cash. Payment terms are discussed during the booking process.",
+      "Pembayaran langsung ke teman yang kamu booking ya. Biasanya bisa transfer bank, e-wallet, atau cash. Detail pembayaran bisa didiskusikan pas booking.",
   },
   {
-    question: "Can I cancel or reschedule a booking?",
+    question: "Bisa cancel atau reschedule nggak?",
     answer:
-      "Yes, but please provide at least 24 hours notice. Cancellation policies may vary by companion, so please discuss this during booking. Late cancellations may incur a fee.",
+      "Bisa dong! Tapi kasih tau minimal 24 jam sebelumnya ya. Kebijakan cancel bisa beda-beda tiap teman, jadi pastiin diskusi waktu booking.",
   },
   {
-    question: "Are the companions verified?",
+    question: "Teman-temannya verified nggak?",
     answer:
-      "Yes, all companions undergo a thorough verification process including identity verification, background checks, and personal interviews. We prioritize safety for both clients and companions.",
+      "Tentu! Semua teman udah melewati proses verifikasi termasuk cek identitas dan wawancara. Keamanan itu prioritas utama kami! 🔒",
   },
   {
-    question: "Is the service confidential?",
+    question: "Rahasianya aman nggak?",
     answer:
-      "Absolutely. We take privacy very seriously. All personal information is kept strictly confidential and is never shared with third parties. Discretion is one of our core values.",
+      "100% aman! Kami sangat menjaga privasi. Info pribadi nggak akan dibagi ke pihak ketiga. Diskresi itu nilai utama kami.",
   },
   {
-    question: "What areas do you cover?",
+    question: "Layanannya ada di kota mana aja?",
     answer:
-      "Our companions are located in major cities across the United States including New York, Los Angeles, San Francisco, Miami, and more. Contact us for availability in your area.",
+      "Saat ini kami ada di Jakarta, Bandung, Surabaya, Yogyakarta, dan beberapa kota besar lainnya. Hubungi kami untuk cek ketersediaan di kotamu!",
   },
 ];
 
@@ -65,15 +64,15 @@ const Contact = () => {
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     toast({
-      title: "Message Sent",
-      description: "We'll get back to you within 24 hours.",
+      title: "Pesan Terkirim! 🎉",
+      description: "Kami akan balas dalam 24 jam ya.",
     });
     setFormData({ name: "", email: "", subject: "", message: "" });
   };
 
   const handleWhatsAppClick = () => {
-    const message = encodeURIComponent("Hi! I have a question about your companion services.");
-    window.open(`https://wa.me/1234567890?text=${message}`, "_blank");
+    const message = encodeURIComponent("Hai! Aku mau tanya-tanya tentang layanan TemanKu dong.");
+    window.open(`https://wa.me/6281234567890?text=${message}`, "_blank");
   };
 
   return (
@@ -89,14 +88,14 @@ const Contact = () => {
             className="text-center max-w-3xl mx-auto"
           >
             <span className="text-primary font-medium text-sm tracking-wider uppercase">
-              Get in Touch
+              Ada Pertanyaan?
             </span>
             <h1 className="text-4xl md:text-6xl font-display font-bold text-foreground mt-4">
-              Contact & Support
+              Hubungi Kami
             </h1>
             <p className="text-muted-foreground mt-6 text-lg">
-              Have questions? We're here to help. Reach out via WhatsApp for 
-              the fastest response.
+              Ada pertanyaan atau butuh bantuan? Langsung chat aja lewat WhatsApp, 
+              respon paling cepat! 💬
             </p>
           </motion.div>
         </div>
@@ -119,10 +118,10 @@ const Contact = () => {
                 WhatsApp
               </h3>
               <p className="text-muted-foreground text-sm mb-4">
-                Fastest way to reach us
+                Respon paling cepet!
               </p>
               <Button variant="whatsapp" onClick={handleWhatsAppClick}>
-                Chat Now
+                Chat Sekarang
               </Button>
             </motion.div>
 
@@ -139,13 +138,13 @@ const Contact = () => {
                 Email
               </h3>
               <p className="text-muted-foreground text-sm mb-4">
-                For detailed inquiries
+                Buat pertanyaan detail
               </p>
               <a
-                href="mailto:support@rendezvous.com"
+                href="mailto:halo@temanku.id"
                 className="text-primary hover:underline"
               >
-                support@rendezvous.com
+                halo@temanku.id
               </a>
             </motion.div>
 
@@ -159,12 +158,12 @@ const Contact = () => {
                 <Clock className="w-7 h-7 text-crimson" />
               </div>
               <h3 className="text-lg font-display font-semibold text-foreground mb-2">
-                Response Time
+                Waktu Respon
               </h3>
               <p className="text-muted-foreground text-sm mb-4">
-                We aim to respond within
+                Kami usahakan secepat mungkin
               </p>
-              <p className="text-foreground font-semibold">2-4 hours</p>
+              <p className="text-foreground font-semibold">2-4 jam</p>
             </motion.div>
           </div>
         </div>
@@ -181,19 +180,19 @@ const Contact = () => {
               viewport={{ once: true }}
             >
               <h2 className="text-3xl font-display font-bold text-foreground mb-6">
-                Send a Message
+                Kirim Pesan
               </h2>
               <form onSubmit={handleSubmit} className="space-y-6">
                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                   <div>
-                    <Label htmlFor="name">Name</Label>
+                    <Label htmlFor="name">Nama</Label>
                     <Input
                       id="name"
                       value={formData.name}
                       onChange={(e) =>
                         setFormData({ ...formData, name: e.target.value })
                       }
-                      placeholder="Your name"
+                      placeholder="Nama kamu"
                       required
                       className="mt-2 bg-card border-border"
                     />
@@ -207,41 +206,41 @@ const Contact = () => {
                       onChange={(e) =>
                         setFormData({ ...formData, email: e.target.value })
                       }
-                      placeholder="your@email.com"
+                      placeholder="email@kamu.com"
                       required
                       className="mt-2 bg-card border-border"
                     />
                   </div>
                 </div>
                 <div>
-                  <Label htmlFor="subject">Subject</Label>
+                  <Label htmlFor="subject">Subjek</Label>
                   <Input
                     id="subject"
                     value={formData.subject}
                     onChange={(e) =>
                       setFormData({ ...formData, subject: e.target.value })
                     }
-                    placeholder="How can we help?"
+                    placeholder="Mau tanya apa nih?"
                     required
                     className="mt-2 bg-card border-border"
                   />
                 </div>
                 <div>
-                  <Label htmlFor="message">Message</Label>
+                  <Label htmlFor="message">Pesan</Label>
                   <Textarea
                     id="message"
                     value={formData.message}
                     onChange={(e) =>
                       setFormData({ ...formData, message: e.target.value })
                     }
-                    placeholder="Tell us more..."
+                    placeholder="Ceritain lebih detail..."
                     rows={5}
                     required
                     className="mt-2 bg-card border-border resize-none"
                   />
                 </div>
                 <Button variant="gold" size="lg" type="submit">
-                  Send Message
+                  Kirim Pesan
                 </Button>
               </form>
             </motion.div>
@@ -253,7 +252,7 @@ const Contact = () => {
               viewport={{ once: true }}
             >
               <h2 className="text-3xl font-display font-bold text-foreground mb-6">
-                Frequently Asked Questions
+                Pertanyaan Umum (FAQ)
               </h2>
               <Accordion type="single" collapsible className="space-y-4">
                 {faqs.map((faq, index) => (
