@@ -49,14 +49,13 @@ const Companions = () => {
             className="text-center"
           >
             <span className="text-primary font-medium text-sm tracking-wider uppercase">
-              Browse Our
+              Jelajahi
             </span>
             <h1 className="text-4xl md:text-6xl font-display font-bold text-foreground mt-4">
-              Companions
+              Teman Tersedia
             </h1>
             <p className="text-muted-foreground mt-4 max-w-xl mx-auto">
-              Discover your perfect match from our curated selection of 
-              sophisticated companions.
+              Temuin teman yang cocok buat nemenin kamu kapan aja dan di mana aja!
             </p>
           </motion.div>
         </div>
@@ -75,7 +74,7 @@ const Companions = () => {
             <div className="relative w-full md:w-80">
               <Search className="absolute left-3 top-1/2 -translate-y-1/2 text-muted-foreground" size={18} />
               <Input
-                placeholder="Search by name or city..."
+                placeholder="Cari nama atau kota..."
                 value={searchTerm}
                 onChange={(e) => setSearchTerm(e.target.value)}
                 className="pl-10 bg-background border-border"
@@ -85,16 +84,16 @@ const Companions = () => {
             <div className="flex flex-wrap gap-4 items-center">
               <div className="flex items-center gap-2">
                 <SlidersHorizontal size={18} className="text-muted-foreground" />
-                <span className="text-sm text-muted-foreground">Filters:</span>
+                <span className="text-sm text-muted-foreground">Filter:</span>
               </div>
 
               {/* City Filter */}
               <Select value={cityFilter} onValueChange={setCityFilter}>
                 <SelectTrigger className="w-40 bg-background border-border">
-                  <SelectValue placeholder="City" />
+                  <SelectValue placeholder="Kota" />
                 </SelectTrigger>
                 <SelectContent>
-                  <SelectItem value="all">All Cities</SelectItem>
+                  <SelectItem value="all">Semua Kota</SelectItem>
                   {cities.map((city) => (
                     <SelectItem key={city} value={city}>
                       {city}
@@ -106,12 +105,12 @@ const Companions = () => {
               {/* Sort */}
               <Select value={sortBy} onValueChange={setSortBy}>
                 <SelectTrigger className="w-40 bg-background border-border">
-                  <SelectValue placeholder="Sort by" />
+                  <SelectValue placeholder="Urutkan" />
                 </SelectTrigger>
                 <SelectContent>
-                  <SelectItem value="rating">Top Rated</SelectItem>
-                  <SelectItem value="price-low">Price: Low to High</SelectItem>
-                  <SelectItem value="price-high">Price: High to Low</SelectItem>
+                  <SelectItem value="rating">Rating Tertinggi</SelectItem>
+                  <SelectItem value="price-low">Harga: Terendah</SelectItem>
+                  <SelectItem value="price-high">Harga: Tertinggi</SelectItem>
                 </SelectContent>
               </Select>
             </div>
@@ -131,7 +130,7 @@ const Companions = () => {
           ) : (
             <div className="text-center py-20">
               <p className="text-muted-foreground text-lg">
-                No companions found matching your criteria.
+                Waduh, nggak ada teman yang cocok nih. Coba ubah filter ya! 😅
               </p>
             </div>
           )}

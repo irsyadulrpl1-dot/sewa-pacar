@@ -10,7 +10,6 @@ import {
   Clock,
   MessageCircle,
   Heart,
-  Calendar,
   ChevronLeft,
   Check,
 } from "lucide-react";
@@ -20,15 +19,24 @@ const CompanionProfile = () => {
   const { id } = useParams();
   const companion = companions.find((c) => c.id === id);
 
+  const formatPrice = (price: number) => {
+    return new Intl.NumberFormat("id-ID", {
+      style: "currency",
+      currency: "IDR",
+      minimumFractionDigits: 0,
+      maximumFractionDigits: 0,
+    }).format(price);
+  };
+
   if (!companion) {
     return (
       <div className="min-h-screen bg-background flex items-center justify-center">
         <div className="text-center">
           <h1 className="text-2xl font-display text-foreground mb-4">
-            Companion not found
+            Teman nggak ketemu nih 😢
           </h1>
           <Button variant="gold" asChild>
-            <Link to="/companions">Browse Companions</Link>
+            <Link to="/companions">Lihat Teman Lain</Link>
           </Button>
         </div>
       </div>
@@ -37,7 +45,7 @@ const CompanionProfile = () => {
 
   const handleWhatsAppClick = () => {
     const message = encodeURIComponent(
-      `Hi! I'm interested in booking a session with ${companion.name}. Can you provide more details?`
+      `Hai! Aku tertarik buat booking ${companion.name}. Bisa kasih info lebih lanjut dong?`
     );
     window.open(`https://wa.me/${companion.whatsapp.replace(/\+/g, "")}?text=${message}`, "_blank");
   };
@@ -59,7 +67,7 @@ const CompanionProfile = () => {
               className="inline-flex items-center gap-2 text-muted-foreground hover:text-foreground transition-colors"
             >
               <ChevronLeft size={20} />
-              <span>Back to Companions</span>
+              <span>Kembali ke Daftar Teman</span>
             </Link>
           </motion.div>
 
@@ -100,21 +108,21 @@ const CompanionProfile = () => {
                     <MapPin size={16} />
                     {companion.city}
                   </span>
-                  <span>{companion.age} years old</span>
+                  <span>{companion.age} tahun</span>
                   <span className="flex items-center gap-1">
                     <Clock size={16} />
                     {companion.availability}
                   </span>
                 </div>
                 <p className="text-2xl font-semibold text-primary mt-4">
-                  ${companion.hourlyRate}/hour
+                  {formatPrice(companion.hourlyRate)}/jam
                 </p>
               </div>
 
               {/* Description */}
               <div className="mb-8">
                 <h2 className="text-xl font-display font-semibold text-foreground mb-3">
-                  About Me
+                  Tentang Aku
                 </h2>
                 <p className="text-muted-foreground leading-relaxed">
                   {companion.description}
@@ -124,7 +132,7 @@ const CompanionProfile = () => {
               {/* Personality */}
               <div className="mb-8">
                 <h2 className="text-xl font-display font-semibold text-foreground mb-3">
-                  Personality
+                  Kepribadian
                 </h2>
                 <div className="flex flex-wrap gap-2">
                   {companion.personality.map((trait) => (
@@ -142,7 +150,7 @@ const CompanionProfile = () => {
               {/* Activities */}
               <div className="mb-8">
                 <h2 className="text-xl font-display font-semibold text-foreground mb-3">
-                  Available For
+                  Bisa Nemenin Untuk
                 </h2>
                 <ul className="grid grid-cols-2 gap-3">
                   {companion.activities.map((activity) => (
@@ -157,7 +165,7 @@ const CompanionProfile = () => {
               {/* Packages */}
               <div className="mb-8">
                 <h2 className="text-xl font-display font-semibold text-foreground mb-3">
-                  Packages
+                  Paket Tersedia
                 </h2>
                 <div className="grid gap-3">
                   {companion.packages.map((pkg) => (
@@ -169,7 +177,7 @@ const CompanionProfile = () => {
                         <p className="font-semibold text-foreground">{pkg.name}</p>
                         <p className="text-sm text-muted-foreground">{pkg.duration}</p>
                       </div>
-                      <p className="text-xl font-semibold text-primary">${pkg.price}</p>
+                      <p className="text-xl font-semibold text-primary">{formatPrice(pkg.price)}</p>
                     </div>
                   ))}
                 </div>
@@ -179,11 +187,11 @@ const CompanionProfile = () => {
               <div className="flex flex-col sm:flex-row gap-4 mt-auto">
                 <Button variant="gold" size="lg" className="flex-1" onClick={handleWhatsAppClick}>
                   <MessageCircle size={18} />
-                  Book via WhatsApp
+                  Booking via WhatsApp
                 </Button>
                 <Button variant="outline" size="lg" className="flex-1">
                   <Heart size={18} />
-                  Add to Favorites
+                  Simpan ke Favorit
                 </Button>
               </div>
             </motion.div>

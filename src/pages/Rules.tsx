@@ -14,46 +14,46 @@ import {
 const rules = [
   {
     icon: UserCheck,
-    title: "Age Verification (18+)",
+    title: "Wajib 18+ Ya!",
     description:
-      "All users and companions must be 18 years of age or older. Age verification is required for all accounts.",
+      "Semua pengguna dan teman wajib berusia 18 tahun ke atas. Nggak ada pengecualian, ini penting banget!",
   },
   {
     icon: Shield,
-    title: "Professional Conduct",
+    title: "Jaga Sikap",
     description:
-      "All interactions must remain professional and respectful. Companions reserve the right to refuse any request that makes them uncomfortable.",
+      "Semua interaksi harus tetap profesional dan sopan. Teman berhak menolak permintaan yang bikin nggak nyaman.",
   },
   {
     icon: Heart,
-    title: "Mutual Respect",
+    title: "Saling Respect",
     description:
-      "Treat all companions with dignity and respect. Harassment, aggressive behavior, or disrespectful language will not be tolerated.",
+      "Perlakukan semua teman dengan hormat. Pelecehan, perilaku agresif, atau bahasa kasar nggak akan ditoleransi.",
   },
   {
     icon: Lock,
-    title: "Privacy & Discretion",
+    title: "Privasi Terjaga",
     description:
-      "Personal information is confidential. Photos, contact details, and meeting locations must never be shared publicly.",
+      "Info pribadi itu rahasia. Foto, kontak, dan lokasi pertemuan nggak boleh disebarin ke publik.",
   },
 ];
 
 const allowed = [
-  "Event companionship (galas, weddings, parties)",
-  "Dining and social outings",
-  "Travel companionship",
-  "Casual conversation and walks",
-  "Business event attendance",
-  "Photography shoots (with consent)",
+  "Teman acara (pesta, nikahan, gathering)",
+  "Teman makan dan hangout",
+  "Teman traveling",
+  "Ngobrol santai dan jalan-jalan",
+  "Teman event bisnis",
+  "Partner foto (dengan persetujuan)",
 ];
 
 const prohibited = [
-  "Sexual services of any kind",
-  "Illegal activities",
-  "Harassment or aggressive behavior",
-  "Sharing personal information publicly",
-  "Recording without consent",
-  "Intoxicated or inappropriate conduct",
+  "Layanan seksual dalam bentuk apapun",
+  "Aktivitas ilegal",
+  "Pelecehan atau perilaku agresif",
+  "Sebar info pribadi ke publik",
+  "Rekam tanpa izin",
+  "Mabuk atau perilaku nggak pantas",
 ];
 
 const Rules = () => {
@@ -70,14 +70,14 @@ const Rules = () => {
             className="text-center max-w-3xl mx-auto"
           >
             <span className="text-primary font-medium text-sm tracking-wider uppercase">
-              Important Information
+              Info Penting
             </span>
             <h1 className="text-4xl md:text-6xl font-display font-bold text-foreground mt-4">
-              Rules & Guidelines
+              Aturan Main
             </h1>
             <p className="text-muted-foreground mt-6 text-lg leading-relaxed">
-              To ensure a safe and enjoyable experience for everyone, please 
-              familiarize yourself with our terms and guidelines before booking.
+              Biar semua senang dan aman, baca dulu ya aturan mainnya sebelum booking. 
+              Ini penting banget lho! 👇
             </p>
           </motion.div>
         </div>
@@ -127,7 +127,7 @@ const Rules = () => {
                   <CheckCircle className="w-6 h-6 text-[hsl(142,70%,45%)]" />
                 </div>
                 <h3 className="text-2xl font-display font-semibold text-foreground">
-                  Allowed Services
+                  Yang Boleh ✅
                 </h3>
               </div>
               <ul className="space-y-4">
@@ -155,7 +155,7 @@ const Rules = () => {
                   <XCircle className="w-6 h-6 text-destructive" />
                 </div>
                 <h3 className="text-2xl font-display font-semibold text-foreground">
-                  Strictly Prohibited
+                  Yang Nggak Boleh ❌
                 </h3>
               </div>
               <ul className="space-y-4">
@@ -187,16 +187,16 @@ const Rules = () => {
               <AlertTriangle className="w-8 h-8 text-crimson shrink-0" />
               <div>
                 <h3 className="text-xl font-display font-semibold text-foreground mb-3">
-                  Important Disclaimer
+                  Disclaimer Penting! ⚠️
                 </h3>
                 <p className="text-muted-foreground leading-relaxed">
-                  Rendezvous is a professional companion service platform. We do not 
-                  offer, promote, or facilitate any form of sexual services. All 
-                  companions are independent contractors who provide strictly platonic 
-                  companionship services. Any violation of our terms will result in 
-                  immediate account termination and potential legal action. By using 
-                  our platform, you agree to abide by these rules and understand that 
-                  all interactions must remain lawful and respectful.
+                  TemanKu adalah platform layanan teman profesional. Kami TIDAK menyediakan, 
+                  mempromosikan, atau memfasilitasi layanan seksual dalam bentuk apapun. 
+                  Semua teman adalah kontraktor independen yang menyediakan layanan pertemanan 
+                  platonis. Pelanggaran akan mengakibatkan penutupan akun permanen dan 
+                  kemungkinan tindakan hukum. Dengan menggunakan platform kami, kamu setuju 
+                  untuk mematuhi aturan ini dan memahami bahwa semua interaksi harus tetap 
+                  sah dan penuh hormat.
                 </p>
               </div>
             </div>
