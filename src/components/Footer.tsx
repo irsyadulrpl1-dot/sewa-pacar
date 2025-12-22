@@ -1,53 +1,67 @@
 import { Link } from "react-router-dom";
-import { Heart, Instagram, Twitter } from "lucide-react";
+import { Heart, Instagram, Twitter, Sparkles, Send } from "lucide-react";
+import { Button } from "./ui/button";
 
 export function Footer() {
   return (
-    <footer className="bg-card border-t border-border">
-      <div className="container mx-auto px-4 py-12">
-        <div className="grid grid-cols-1 md:grid-cols-4 gap-8">
+    <footer className="bg-card border-t border-border/50">
+      <div className="container mx-auto px-4 py-16">
+        <div className="grid grid-cols-1 md:grid-cols-4 gap-10">
           {/* Brand */}
           <div className="md:col-span-1">
-            <Link to="/" className="text-2xl font-display font-bold text-gradient-gold">
-              Rendezvous
+            <Link to="/" className="flex items-center gap-2 mb-4">
+              <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-lavender to-pink flex items-center justify-center">
+                <Sparkles size={20} className="text-primary-foreground" />
+              </div>
+              <span className="text-2xl font-display font-bold text-gradient">
+                Temani
+              </span>
             </Link>
-            <p className="mt-4 text-muted-foreground text-sm leading-relaxed">
-              Premium companion services for sophisticated individuals. 
-              Experience genuine connection and memorable moments.
+            <p className="text-muted-foreground text-sm leading-relaxed mb-6">
+              Platform teman rental terpercaya untuk Gen Z. Aman, asik, dan selalu siap nemenin kamu! ✨
             </p>
-            <div className="flex gap-4 mt-6">
+            <div className="flex gap-3">
               <a
                 href="#"
-                className="w-10 h-10 rounded-full bg-muted flex items-center justify-center text-muted-foreground hover:text-primary hover:bg-primary/10 transition-colors"
+                className="w-10 h-10 rounded-xl bg-gradient-to-br from-lavender/20 to-pink/20 flex items-center justify-center text-primary hover:from-lavender hover:to-pink hover:text-primary-foreground transition-all duration-300"
               >
                 <Instagram size={18} />
               </a>
               <a
                 href="#"
-                className="w-10 h-10 rounded-full bg-muted flex items-center justify-center text-muted-foreground hover:text-primary hover:bg-primary/10 transition-colors"
+                className="w-10 h-10 rounded-xl bg-gradient-to-br from-sky/20 to-mint/20 flex items-center justify-center text-sky hover:from-sky hover:to-mint hover:text-foreground transition-all duration-300"
               >
                 <Twitter size={18} />
+              </a>
+              <a
+                href="#"
+                className="w-10 h-10 rounded-xl bg-gradient-to-br from-mint/20 to-sky/20 flex items-center justify-center text-mint hover:from-mint hover:to-sky hover:text-foreground transition-all duration-300"
+              >
+                <Send size={18} />
               </a>
             </div>
           </div>
 
           {/* Quick Links */}
           <div>
-            <h4 className="font-display font-semibold text-foreground mb-4">Quick Links</h4>
+            <h4 className="font-display font-bold text-foreground mb-5 text-lg">Menu</h4>
             <ul className="space-y-3">
               <li>
-                <Link to="/companions" className="text-muted-foreground hover:text-primary transition-colors text-sm">
-                  Browse Companions
+                <Link to="/companions" className="text-muted-foreground hover:text-primary transition-colors text-sm flex items-center gap-2">
+                  <span className="w-1.5 h-1.5 rounded-full bg-lavender" />
+                  Cari Teman
                 </Link>
               </li>
               <li>
-                <Link to="/rules" className="text-muted-foreground hover:text-primary transition-colors text-sm">
-                  Rules & Guidelines
+                <Link to="/rules" className="text-muted-foreground hover:text-primary transition-colors text-sm flex items-center gap-2">
+                  <span className="w-1.5 h-1.5 rounded-full bg-pink" />
+                  Aturan Main
                 </Link>
               </li>
               <li>
-                <Link to="/contact" className="text-muted-foreground hover:text-primary transition-colors text-sm">
-                  Contact Us
+                <Link to="/contact" className="text-muted-foreground hover:text-primary transition-colors text-sm flex items-center gap-2">
+                  <span className="w-1.5 h-1.5 rounded-full bg-mint" />
+                  Hubungi Kami
                 </Link>
               </li>
             </ul>
@@ -55,32 +69,43 @@ export function Footer() {
 
           {/* Services */}
           <div>
-            <h4 className="font-display font-semibold text-foreground mb-4">Services</h4>
+            <h4 className="font-display font-bold text-foreground mb-5 text-lg">Layanan</h4>
             <ul className="space-y-3">
-              <li className="text-muted-foreground text-sm">Event Companion</li>
-              <li className="text-muted-foreground text-sm">Dining Partner</li>
-              <li className="text-muted-foreground text-sm">Travel Companion</li>
-              <li className="text-muted-foreground text-sm">Social Events</li>
+              <li className="text-muted-foreground text-sm flex items-center gap-2">
+                <span>🎉</span> Teman Acara
+              </li>
+              <li className="text-muted-foreground text-sm flex items-center gap-2">
+                <span>☕</span> Teman Nongkrong
+              </li>
+              <li className="text-muted-foreground text-sm flex items-center gap-2">
+                <span>✈️</span> Teman Traveling
+              </li>
+              <li className="text-muted-foreground text-sm flex items-center gap-2">
+                <span>🎬</span> Teman Hangout
+              </li>
             </ul>
           </div>
 
           {/* Contact */}
           <div>
-            <h4 className="font-display font-semibold text-foreground mb-4">Contact</h4>
+            <h4 className="font-display font-bold text-foreground mb-5 text-lg">Kontak</h4>
             <ul className="space-y-3">
-              <li className="text-muted-foreground text-sm">support@rendezvous.com</li>
-              <li className="text-muted-foreground text-sm">WhatsApp: +1 234 567 890</li>
-              <li className="text-muted-foreground text-sm">Available 24/7</li>
+              <li className="text-muted-foreground text-sm">📧 halo@temani.id</li>
+              <li className="text-muted-foreground text-sm">📱 WA: +62 812 3456 7890</li>
+              <li className="text-muted-foreground text-sm">⏰ Online 24/7</li>
             </ul>
+            <Button variant="whatsapp" size="sm" className="mt-4 w-full">
+              Chat Sekarang
+            </Button>
           </div>
         </div>
 
-        <div className="border-t border-border mt-12 pt-8 flex flex-col md:flex-row justify-between items-center gap-4">
+        <div className="border-t border-border/50 mt-12 pt-8 flex flex-col md:flex-row justify-between items-center gap-4">
           <p className="text-muted-foreground text-sm">
-            © 2024 Rendezvous. All rights reserved. Adults (18+) only.
+            © 2024 Temani. All rights reserved. Khusus 18+ ya! 🔞
           </p>
-          <p className="text-muted-foreground text-sm flex items-center gap-1">
-            Made with <Heart size={14} className="text-crimson" /> for genuine connections
+          <p className="text-muted-foreground text-sm flex items-center gap-2">
+            Made with <Heart size={14} className="text-pink fill-pink" /> by Gen Z, for Gen Z
           </p>
         </div>
       </div>

@@ -6,29 +6,32 @@ import { Footer } from "@/components/Footer";
 import { CompanionCard } from "@/components/CompanionCard";
 import { Testimonials } from "@/components/Testimonials";
 import { companions } from "@/data/companions";
-import { Heart, Users, Calendar, Shield, Star, ChevronRight } from "lucide-react";
-import heroBg from "@/assets/hero-bg.jpg";
+import { Heart, Users, Calendar, Shield, Star, ChevronRight, Sparkles, Zap, Coffee, MapPin } from "lucide-react";
 
 const services = [
   {
     icon: Users,
     title: "Teman Acara",
-    description: "Butuh partner buat dateng ke pesta, nikahan, atau event kampus? Kita siapin yang paling cocok buat kamu!",
+    description: "Butuh partner buat dateng ke pesta, nikahan, atau event kampus? Kita siapin yang paling cocok! 🎉",
+    gradient: "from-lavender to-pink",
   },
   {
-    icon: Heart,
-    title: "Teman Makan",
-    description: "Pengen makan di resto bagus tapi males sendirian? Cari temen makan yang asik di sini!",
+    icon: Coffee,
+    title: "Teman Nongkrong",
+    description: "Pengen ngopi cantik atau makan enak tapi males sendirian? Let's go! ☕",
+    gradient: "from-pink to-peach",
   },
   {
-    icon: Calendar,
+    icon: MapPin,
     title: "Teman Traveling",
-    description: "Liburan jadi lebih seru kalau ada temen! Explore tempat baru bareng partner yang asyik.",
+    description: "Liburan jadi lebih seru kalau ada temen! Explore tempat baru bareng yuk~ ✈️",
+    gradient: "from-mint to-sky",
   },
   {
-    icon: Shield,
+    icon: Zap,
     title: "Teman Hangout",
-    description: "Dari nongkrong di cafe, nonton bioskop, sampe karaoke. Semua jadi lebih fun!",
+    description: "Dari nonton bioskop, karaoke, sampe window shopping. Everything's better together! 🎬",
+    gradient: "from-sky to-lavender",
   },
 ];
 
@@ -38,48 +41,47 @@ const Index = () => {
       <Navbar />
 
       {/* Hero Section */}
-      <section className="relative min-h-screen flex items-center justify-center overflow-hidden">
-        {/* Background Image */}
-        <div className="absolute inset-0">
-          <img
-            src={heroBg}
-            alt="Background"
-            className="w-full h-full object-cover"
-          />
-          <div className="absolute inset-0 bg-gradient-to-b from-background/60 via-background/80 to-background" />
-        </div>
+      <section className="relative min-h-screen flex items-center justify-center overflow-hidden pt-24">
+        {/* Animated Background */}
+        <div className="absolute inset-0 bg-gradient-genz" />
+        <div className="absolute top-20 left-10 w-72 h-72 bg-lavender/30 rounded-full blur-3xl animate-float" />
+        <div className="absolute bottom-20 right-10 w-96 h-96 bg-pink/20 rounded-full blur-3xl animate-float" style={{ animationDelay: "1s" }} />
+        <div className="absolute top-1/2 left-1/2 w-64 h-64 bg-mint/20 rounded-full blur-3xl animate-float" style={{ animationDelay: "2s" }} />
 
         {/* Content */}
-        <div className="relative container mx-auto px-4 pt-20">
+        <div className="relative container mx-auto px-4">
           <motion.div
             initial={{ opacity: 0, y: 40 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.8, delay: 0.2 }}
             className="max-w-3xl mx-auto text-center"
           >
-            <motion.span
-              initial={{ opacity: 0 }}
-              animate={{ opacity: 1 }}
-              transition={{ delay: 0.5 }}
-              className="inline-block px-4 py-2 rounded-full border border-primary/30 text-primary text-sm font-medium mb-6"
+            <motion.div
+              initial={{ opacity: 0, scale: 0.8 }}
+              animate={{ opacity: 1, scale: 1 }}
+              transition={{ delay: 0.3 }}
+              className="inline-flex items-center gap-2 px-5 py-2.5 rounded-full bg-lavender/10 border border-lavender/30 text-primary text-sm font-medium mb-8"
             >
-              Layanan Teman Rental (18+)
-            </motion.span>
+              <Sparkles size={16} className="text-pink" />
+              <span>Layanan Teman Rental (18+)</span>
+              <Sparkles size={16} className="text-lavender" />
+            </motion.div>
             
             <h1 className="text-5xl md:text-7xl font-display font-bold text-foreground leading-tight mb-6">
-              Cari <span className="text-gradient-gold">Teman</span> Seru Buat Hangout!
+              Cari <span className="text-gradient">Teman Seru</span> Buat Hangout!
             </h1>
             
             <p className="text-xl text-muted-foreground mb-10 leading-relaxed">
               Butuh partner buat acara, makan bareng, atau sekadar ngobrol santai? 
-              Di sini tempatnya! Aman, profesional, dan pastinya seru abis! ✨
+              Di sini tempatnya! Aman, asik, dan pastinya <span className="text-primary font-medium">vibes banget</span>! ✨
             </p>
 
             <div className="flex flex-col sm:flex-row gap-4 justify-center">
               <Button variant="hero" size="xl" asChild>
                 <Link to="/companions">
+                  <Sparkles size={18} />
                   Lihat Semua Teman
-                  <ChevronRight size={20} />
+                  <ChevronRight size={18} />
                 </Link>
               </Button>
               <Button variant="heroOutline" size="xl" asChild>
@@ -94,39 +96,42 @@ const Index = () => {
               initial={{ opacity: 0, y: 20 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ delay: 1 }}
-              className="mt-16 flex flex-wrap justify-center gap-8 text-muted-foreground"
+              className="mt-16 flex flex-wrap justify-center gap-4"
             >
-              <div className="flex items-center gap-2">
-                <Shield size={20} className="text-primary" />
-                <span className="text-sm">Profil Terverifikasi</span>
-              </div>
-              <div className="flex items-center gap-2">
-                <Star size={20} className="text-primary" />
-                <span className="text-sm">Rating Bintang 5</span>
-              </div>
-              <div className="flex items-center gap-2">
-                <Heart size={20} className="text-primary" />
-                <span className="text-sm">100% Aman</span>
-              </div>
+              {[
+                { icon: Shield, label: "100% Aman", color: "mint" },
+                { icon: Star, label: "Rating 5.0", color: "pink" },
+                { icon: Heart, label: "Terpercaya", color: "lavender" },
+              ].map((item, i) => (
+                <div
+                  key={item.label}
+                  className="flex items-center gap-2 px-4 py-2 rounded-full bg-card border border-border/50 shadow-soft"
+                >
+                  <item.icon size={18} className={`text-${item.color}`} />
+                  <span className="text-sm font-medium text-foreground">{item.label}</span>
+                </div>
+              ))}
             </motion.div>
           </motion.div>
         </div>
       </section>
 
       {/* Services Section */}
-      <section className="py-24 bg-card">
-        <div className="container mx-auto px-4">
+      <section className="py-24 relative">
+        <div className="absolute inset-0 bg-gradient-to-b from-background via-lavender-soft/30 to-background" />
+        <div className="container mx-auto px-4 relative">
           <motion.div
             initial={{ opacity: 0, y: 20 }}
             whileInView={{ opacity: 1, y: 0 }}
             viewport={{ once: true }}
             className="text-center mb-16"
           >
-            <span className="text-primary font-medium text-sm tracking-wider uppercase">
+            <span className="inline-flex items-center gap-2 text-primary font-medium text-sm tracking-wider uppercase bg-lavender/10 px-4 py-2 rounded-full">
+              <Zap size={14} />
               Layanan Kami
             </span>
-            <h2 className="text-4xl md:text-5xl font-display font-bold text-foreground mt-4">
-              Mau Ngapain Hari Ini?
+            <h2 className="text-4xl md:text-5xl font-display font-bold text-foreground mt-6">
+              Mau Ngapain <span className="text-gradient">Hari Ini</span>?
             </h2>
             <p className="text-muted-foreground mt-4 max-w-2xl mx-auto">
               Dari acara formal sampe hangout santai, kita punya teman yang pas buat setiap momen!
@@ -141,12 +146,13 @@ const Index = () => {
                 whileInView={{ opacity: 1, y: 0 }}
                 viewport={{ once: true }}
                 transition={{ duration: 0.5, delay: index * 0.1 }}
-                className="group p-8 rounded-xl bg-background border border-border hover:border-primary/30 transition-all duration-300 hover:shadow-xl hover:shadow-primary/5"
+                whileHover={{ y: -5, scale: 1.02 }}
+                className="group p-6 rounded-3xl bg-card border border-border/50 shadow-soft hover:shadow-card-hover transition-all duration-300"
               >
-                <div className="w-14 h-14 rounded-lg bg-primary/10 flex items-center justify-center mb-6 group-hover:bg-primary/20 transition-colors">
-                  <service.icon className="w-7 h-7 text-primary" />
+                <div className={`w-14 h-14 rounded-2xl bg-gradient-to-br ${service.gradient} flex items-center justify-center mb-5 group-hover:scale-110 transition-transform duration-300`}>
+                  <service.icon className="w-7 h-7 text-primary-foreground" />
                 </div>
-                <h3 className="text-xl font-display font-semibold text-foreground mb-3">
+                <h3 className="text-xl font-display font-bold text-foreground mb-3">
                   {service.title}
                 </h3>
                 <p className="text-muted-foreground text-sm leading-relaxed">
@@ -168,11 +174,12 @@ const Index = () => {
             className="flex flex-col md:flex-row justify-between items-start md:items-end mb-12"
           >
             <div>
-              <span className="text-primary font-medium text-sm tracking-wider uppercase">
-                Pilihan Populer
+              <span className="inline-flex items-center gap-2 text-primary font-medium text-sm tracking-wider uppercase bg-pink/10 px-4 py-2 rounded-full">
+                <Star size={14} />
+                Pilihan Favorit
               </span>
-              <h2 className="text-4xl md:text-5xl font-display font-bold text-foreground mt-4">
-                Teman Favorit
+              <h2 className="text-4xl md:text-5xl font-display font-bold text-foreground mt-6">
+                Teman <span className="text-gradient">Populer</span>
               </h2>
             </div>
             <Button variant="outline" className="mt-6 md:mt-0" asChild>
@@ -185,7 +192,12 @@ const Index = () => {
 
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
             {companions.slice(0, 4).map((companion, index) => (
-              <CompanionCard key={companion.id} companion={companion} index={index} />
+              <CompanionCard 
+                key={companion.id} 
+                companion={companion} 
+                index={index}
+                badge={index === 0 ? "popular" : index === 1 ? "verified" : index === 3 ? "new" : undefined}
+              />
             ))}
           </div>
         </div>
@@ -196,7 +208,10 @@ const Index = () => {
 
       {/* CTA Section */}
       <section className="py-24 relative overflow-hidden">
-        <div className="absolute inset-0 bg-gradient-to-r from-primary/10 via-crimson/5 to-primary/10" />
+        <div className="absolute inset-0 bg-gradient-to-r from-lavender/10 via-pink/10 to-mint/10" />
+        <div className="absolute top-0 left-0 w-96 h-96 bg-lavender/20 rounded-full blur-3xl" />
+        <div className="absolute bottom-0 right-0 w-96 h-96 bg-pink/20 rounded-full blur-3xl" />
+        
         <div className="container mx-auto px-4 relative">
           <motion.div
             initial={{ opacity: 0, y: 20 }}
@@ -204,16 +219,26 @@ const Index = () => {
             viewport={{ once: true }}
             className="max-w-3xl mx-auto text-center"
           >
+            <motion.div
+              initial={{ scale: 0 }}
+              whileInView={{ scale: 1 }}
+              viewport={{ once: true }}
+              className="w-20 h-20 mx-auto mb-8 rounded-3xl bg-gradient-to-br from-lavender to-pink flex items-center justify-center shadow-glow"
+            >
+              <Heart size={36} className="text-primary-foreground" />
+            </motion.div>
+            
             <h2 className="text-4xl md:text-5xl font-display font-bold text-foreground mb-6">
-              Siap Cari <span className="text-gradient-gold">Teman Seru</span>?
+              Siap Cari <span className="text-gradient">Teman Seru</span>?
             </h2>
             <p className="text-muted-foreground text-lg mb-10">
-              Yuk langsung cek teman-teman keren yang udah siap nemenin kamu!
+              Yuk langsung cek teman-teman keren yang udah siap nemenin kamu! 🚀
             </p>
             <Button variant="hero" size="xl" asChild>
               <Link to="/companions">
+                <Sparkles size={18} />
                 Mulai Sekarang
-                <ChevronRight size={20} />
+                <ChevronRight size={18} />
               </Link>
             </Button>
           </motion.div>

@@ -35,7 +35,7 @@ const CompanionProfile = () => {
           <h1 className="text-2xl font-display text-foreground mb-4">
             Teman nggak ketemu nih 😢
           </h1>
-          <Button variant="gold" asChild>
+          <Button variant="gradient" asChild>
             <Link to="/companions">Lihat Teman Lain</Link>
           </Button>
         </div>
@@ -185,7 +185,7 @@ const CompanionProfile = () => {
 
               {/* CTA Buttons */}
               <div className="flex flex-col sm:flex-row gap-4 mt-auto">
-                <Button variant="gold" size="lg" className="flex-1" onClick={handleWhatsAppClick}>
+                <Button variant="gradient" size="lg" className="flex-1" onClick={handleWhatsAppClick}>
                   <MessageCircle size={18} />
                   Booking via WhatsApp
                 </Button>

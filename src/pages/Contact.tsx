@@ -239,7 +239,7 @@ const Contact = () => {
                     className="mt-2 bg-card border-border resize-none"
                   />
                 </div>
-                <Button variant="gold" size="lg" type="submit">
+                <Button variant="gradient" size="lg" type="submit">
                   Kirim Pesan
                 </Button>
               </form>

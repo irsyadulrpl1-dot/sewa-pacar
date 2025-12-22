@@ -5,27 +5,30 @@ import { cva, type VariantProps } from "class-variance-authority";
 import { cn } from "@/lib/utils";
 
 const buttonVariants = cva(
-  "inline-flex items-center justify-center gap-2 whitespace-nowrap rounded-md text-sm font-medium ring-offset-background transition-all duration-300 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50 [&_svg]:pointer-events-none [&_svg]:size-4 [&_svg]:shrink-0",
+  "inline-flex items-center justify-center gap-2 whitespace-nowrap rounded-2xl text-sm font-semibold ring-offset-background transition-all duration-300 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50 [&_svg]:pointer-events-none [&_svg]:size-4 [&_svg]:shrink-0 active:scale-95",
   {
     variants: {
       variant: {
-        default: "bg-primary text-primary-foreground hover:bg-primary/90 hover:shadow-lg",
+        default: "bg-primary text-primary-foreground hover:opacity-90 hover:shadow-lg shadow-soft",
         destructive: "bg-destructive text-destructive-foreground hover:bg-destructive/90",
-        outline: "border border-border bg-transparent text-foreground hover:border-primary hover:text-primary",
+        outline: "border-2 border-primary bg-transparent text-primary hover:bg-primary/10",
         secondary: "bg-secondary text-secondary-foreground hover:bg-secondary/80",
         ghost: "hover:bg-muted hover:text-foreground",
         link: "text-primary underline-offset-4 hover:underline",
-        gold: "bg-gradient-to-r from-gold to-gold-dark text-primary-foreground font-semibold hover:from-gold-light hover:to-gold shadow-lg hover:shadow-gold/30 hover:scale-105",
-        hero: "bg-gradient-to-r from-gold to-gold-dark text-primary-foreground font-semibold text-base px-8 py-4 h-auto hover:from-gold-light hover:to-gold shadow-lg hover:shadow-gold/40 hover:scale-105",
-        heroOutline: "border-2 border-gold bg-transparent text-gold font-semibold text-base px-8 py-4 h-auto hover:bg-gold/10 hover:shadow-gold/20 hover:shadow-lg",
-        whatsapp: "bg-[hsl(142,70%,45%)] text-foreground font-semibold hover:bg-[hsl(142,70%,50%)] shadow-lg hover:shadow-[hsl(142,70%,45%)/30]",
+        gradient: "bg-gradient-to-r from-lavender to-pink text-primary-foreground font-semibold hover:opacity-90 shadow-lg hover:shadow-glow hover:scale-105 animate-gradient bg-[length:200%_200%]",
+        hero: "bg-gradient-to-r from-lavender via-pink to-lavender text-primary-foreground font-bold text-base px-8 py-4 h-auto hover:opacity-90 shadow-lg hover:shadow-glow hover:scale-105 animate-gradient bg-[length:200%_200%]",
+        heroOutline: "border-2 border-lavender bg-lavender/10 text-lavender font-semibold text-base px-8 py-4 h-auto hover:bg-lavender/20 hover:shadow-lg backdrop-blur-sm",
+        mint: "bg-gradient-to-r from-mint to-sky text-foreground font-semibold hover:opacity-90 shadow-lg hover:scale-105",
+        whatsapp: "bg-gradient-to-r from-[hsl(142,70%,45%)] to-[hsl(142,70%,55%)] text-primary-foreground font-semibold hover:opacity-90 shadow-lg hover:scale-105",
+        soft: "bg-lavender-soft text-lavender font-semibold hover:bg-lavender/20",
+        pill: "bg-card border border-border text-foreground font-medium hover:border-primary hover:text-primary rounded-full",
       },
       size: {
-        default: "h-10 px-4 py-2",
-        sm: "h-9 rounded-md px-3",
-        lg: "h-12 rounded-lg px-8 text-base",
-        xl: "h-14 rounded-lg px-10 text-lg",
-        icon: "h-10 w-10",
+        default: "h-11 px-5 py-2",
+        sm: "h-9 rounded-xl px-4 text-xs",
+        lg: "h-12 rounded-2xl px-8 text-base",
+        xl: "h-14 rounded-2xl px-10 text-lg",
+        icon: "h-10 w-10 rounded-xl",
       },
     },
     defaultVariants: {
