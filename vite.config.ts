@@ -19,8 +19,14 @@ export default defineConfig(({ mode }) => ({
     dedupe: ["react", "react-dom", "react/jsx-runtime", "react/jsx-dev-runtime"],
   },
   optimizeDeps: {
-    // Avoid pre-bundling React; a corrupted optimize cache can surface as
-    // "Cannot read properties of null (reading 'useEffect')".
-    exclude: ["react", "react-dom", "react/jsx-runtime", "react/jsx-dev-runtime"],
+    include: [
+      "react",
+      "react-dom",
+      "react/jsx-runtime",
+      "react/jsx-dev-runtime",
+      "@tanstack/react-query",
+    ],
+    // Force refresh of cached deps
+    force: true,
   },
 }));
