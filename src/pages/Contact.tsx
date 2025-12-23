@@ -1,7 +1,6 @@
 import { motion } from "framer-motion";
 import { useState } from "react";
-import { Navbar } from "@/components/Navbar";
-import { Footer } from "@/components/Footer";
+import { MobileLayout } from "@/components/MobileLayout";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
@@ -71,29 +70,27 @@ const Contact = () => {
   };
 
   const handleWhatsAppClick = () => {
-    const message = encodeURIComponent("Hai! Aku mau tanya-tanya tentang layanan TemanKu dong.");
+    const message = encodeURIComponent("Hai! Aku mau tanya-tanya tentang layanan Temani dong.");
     window.open(`https://wa.me/6281234567890?text=${message}`, "_blank");
   };
 
   return (
-    <div className="min-h-screen bg-background">
-      <Navbar />
-
+    <MobileLayout>
       {/* Header */}
-      <section className="pt-32 pb-12">
+      <section className="pt-8 md:pt-32 pb-8 md:pb-12">
         <div className="container mx-auto px-4">
           <motion.div
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
             className="text-center max-w-3xl mx-auto"
           >
-            <span className="text-primary font-medium text-sm tracking-wider uppercase">
+            <span className="text-primary font-medium text-xs md:text-sm tracking-wider uppercase">
               Ada Pertanyaan?
             </span>
-            <h1 className="text-4xl md:text-6xl font-display font-bold text-foreground mt-4">
+            <h1 className="text-2xl md:text-4xl lg:text-6xl font-display font-bold text-foreground mt-2 md:mt-4">
               Hubungi Kami
             </h1>
-            <p className="text-muted-foreground mt-6 text-lg">
+            <p className="text-muted-foreground mt-4 md:mt-6 text-sm md:text-lg px-2">
               Ada pertanyaan atau butuh bantuan? Langsung chat aja lewat WhatsApp, 
               respon paling cepat! 💬
             </p>
@@ -102,25 +99,25 @@ const Contact = () => {
       </section>
 
       {/* Contact Options */}
-      <section className="py-8">
+      <section className="py-4 md:py-8">
         <div className="container mx-auto px-4">
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-16">
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-3 md:gap-6 mb-8 md:mb-16">
             <motion.div
               initial={{ opacity: 0, y: 20 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ delay: 0.1 }}
-              className="p-8 bg-card rounded-xl border border-border text-center hover:border-primary/30 transition-colors"
+              className="p-5 md:p-8 bg-card rounded-2xl border border-border text-center hover:border-primary/30 transition-colors"
             >
-              <div className="w-14 h-14 rounded-full bg-[hsl(142,70%,45%)]/10 flex items-center justify-center mx-auto mb-4">
-                <MessageCircle className="w-7 h-7 text-[hsl(142,70%,45%)]" />
+              <div className="w-12 md:w-14 h-12 md:h-14 rounded-xl bg-[hsl(142,70%,45%)]/10 flex items-center justify-center mx-auto mb-3 md:mb-4">
+                <MessageCircle className="w-6 md:w-7 h-6 md:h-7 text-[hsl(142,70%,45%)]" />
               </div>
-              <h3 className="text-lg font-display font-semibold text-foreground mb-2">
+              <h3 className="text-base md:text-lg font-display font-semibold text-foreground mb-1 md:mb-2">
                 WhatsApp
               </h3>
-              <p className="text-muted-foreground text-sm mb-4">
+              <p className="text-muted-foreground text-xs md:text-sm mb-3 md:mb-4">
                 Respon paling cepet!
               </p>
-              <Button variant="whatsapp" onClick={handleWhatsAppClick}>
+              <Button variant="whatsapp" size="sm" onClick={handleWhatsAppClick} className="w-full md:w-auto">
                 Chat Sekarang
               </Button>
             </motion.div>
@@ -129,22 +126,22 @@ const Contact = () => {
               initial={{ opacity: 0, y: 20 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ delay: 0.2 }}
-              className="p-8 bg-card rounded-xl border border-border text-center hover:border-primary/30 transition-colors"
+              className="p-5 md:p-8 bg-card rounded-2xl border border-border text-center hover:border-primary/30 transition-colors"
             >
-              <div className="w-14 h-14 rounded-full bg-primary/10 flex items-center justify-center mx-auto mb-4">
-                <Mail className="w-7 h-7 text-primary" />
+              <div className="w-12 md:w-14 h-12 md:h-14 rounded-xl bg-primary/10 flex items-center justify-center mx-auto mb-3 md:mb-4">
+                <Mail className="w-6 md:w-7 h-6 md:h-7 text-primary" />
               </div>
-              <h3 className="text-lg font-display font-semibold text-foreground mb-2">
+              <h3 className="text-base md:text-lg font-display font-semibold text-foreground mb-1 md:mb-2">
                 Email
               </h3>
-              <p className="text-muted-foreground text-sm mb-4">
+              <p className="text-muted-foreground text-xs md:text-sm mb-3 md:mb-4">
                 Buat pertanyaan detail
               </p>
               <a
-                href="mailto:halo@temanku.id"
-                className="text-primary hover:underline"
+                href="mailto:halo@temani.id"
+                className="text-primary hover:underline text-sm md:text-base"
               >
-                halo@temanku.id
+                halo@temani.id
               </a>
             </motion.div>
 
@@ -152,15 +149,15 @@ const Contact = () => {
               initial={{ opacity: 0, y: 20 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ delay: 0.3 }}
-              className="p-8 bg-card rounded-xl border border-border text-center hover:border-primary/30 transition-colors"
+              className="p-5 md:p-8 bg-card rounded-2xl border border-border text-center hover:border-primary/30 transition-colors"
             >
-              <div className="w-14 h-14 rounded-full bg-crimson/10 flex items-center justify-center mx-auto mb-4">
-                <Clock className="w-7 h-7 text-crimson" />
+              <div className="w-12 md:w-14 h-12 md:h-14 rounded-xl bg-pink/10 flex items-center justify-center mx-auto mb-3 md:mb-4">
+                <Clock className="w-6 md:w-7 h-6 md:h-7 text-pink" />
               </div>
-              <h3 className="text-lg font-display font-semibold text-foreground mb-2">
+              <h3 className="text-base md:text-lg font-display font-semibold text-foreground mb-1 md:mb-2">
                 Waktu Respon
               </h3>
-              <p className="text-muted-foreground text-sm mb-4">
+              <p className="text-muted-foreground text-xs md:text-sm mb-3 md:mb-4">
                 Kami usahakan secepat mungkin
               </p>
               <p className="text-foreground font-semibold">2-4 jam</p>
@@ -170,22 +167,22 @@ const Contact = () => {
       </section>
 
       {/* Contact Form & FAQ */}
-      <section className="py-8 pb-24">
+      <section className="py-4 md:py-8">
         <div className="container mx-auto px-4">
-          <div className="grid grid-cols-1 lg:grid-cols-2 gap-12">
+          <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 md:gap-12">
             {/* Contact Form */}
             <motion.div
               initial={{ opacity: 0, x: -30 }}
               whileInView={{ opacity: 1, x: 0 }}
               viewport={{ once: true }}
             >
-              <h2 className="text-3xl font-display font-bold text-foreground mb-6">
+              <h2 className="text-xl md:text-3xl font-display font-bold text-foreground mb-4 md:mb-6">
                 Kirim Pesan
               </h2>
-              <form onSubmit={handleSubmit} className="space-y-6">
-                <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+              <form onSubmit={handleSubmit} className="space-y-4 md:space-y-6">
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 md:gap-4">
                   <div>
-                    <Label htmlFor="name">Nama</Label>
+                    <Label htmlFor="name" className="text-sm">Nama</Label>
                     <Input
                       id="name"
                       value={formData.name}
@@ -194,11 +191,11 @@ const Contact = () => {
                       }
                       placeholder="Nama kamu"
                       required
-                      className="mt-2 bg-card border-border"
+                      className="mt-2 bg-card border-border rounded-xl"
                     />
                   </div>
                   <div>
-                    <Label htmlFor="email">Email</Label>
+                    <Label htmlFor="email" className="text-sm">Email</Label>
                     <Input
                       id="email"
                       type="email"
@@ -208,12 +205,12 @@ const Contact = () => {
                       }
                       placeholder="email@kamu.com"
                       required
-                      className="mt-2 bg-card border-border"
+                      className="mt-2 bg-card border-border rounded-xl"
                     />
                   </div>
                 </div>
                 <div>
-                  <Label htmlFor="subject">Subjek</Label>
+                  <Label htmlFor="subject" className="text-sm">Subjek</Label>
                   <Input
                     id="subject"
                     value={formData.subject}
@@ -222,11 +219,11 @@ const Contact = () => {
                     }
                     placeholder="Mau tanya apa nih?"
                     required
-                    className="mt-2 bg-card border-border"
+                    className="mt-2 bg-card border-border rounded-xl"
                   />
                 </div>
                 <div>
-                  <Label htmlFor="message">Pesan</Label>
+                  <Label htmlFor="message" className="text-sm">Pesan</Label>
                   <Textarea
                     id="message"
                     value={formData.message}
@@ -236,10 +233,10 @@ const Contact = () => {
                     placeholder="Ceritain lebih detail..."
                     rows={5}
                     required
-                    className="mt-2 bg-card border-border resize-none"
+                    className="mt-2 bg-card border-border resize-none rounded-xl"
                   />
                 </div>
-                <Button variant="gradient" size="lg" type="submit">
+                <Button variant="gradient" size="lg" type="submit" className="w-full md:w-auto">
                   Kirim Pesan
                 </Button>
               </form>
@@ -251,20 +248,20 @@ const Contact = () => {
               whileInView={{ opacity: 1, x: 0 }}
               viewport={{ once: true }}
             >
-              <h2 className="text-3xl font-display font-bold text-foreground mb-6">
+              <h2 className="text-xl md:text-3xl font-display font-bold text-foreground mb-4 md:mb-6">
                 Pertanyaan Umum (FAQ)
               </h2>
-              <Accordion type="single" collapsible className="space-y-4">
+              <Accordion type="single" collapsible className="space-y-3 md:space-y-4">
                 {faqs.map((faq, index) => (
                   <AccordionItem
                     key={index}
                     value={`item-${index}`}
-                    className="bg-card border border-border rounded-lg px-6"
+                    className="bg-card border border-border rounded-xl px-4 md:px-6"
                   >
-                    <AccordionTrigger className="text-left font-medium text-foreground hover:no-underline">
+                    <AccordionTrigger className="text-left font-medium text-foreground hover:no-underline text-sm md:text-base py-3 md:py-4">
                       {faq.question}
                     </AccordionTrigger>
-                    <AccordionContent className="text-muted-foreground">
+                    <AccordionContent className="text-muted-foreground text-sm md:text-base pb-3 md:pb-4">
                       {faq.answer}
                     </AccordionContent>
                   </AccordionItem>
@@ -274,9 +271,7 @@ const Contact = () => {
           </div>
         </div>
       </section>
-
-      <Footer />
-    </div>
+    </MobileLayout>
   );
 };
 
