@@ -13,8 +13,13 @@ export default defineConfig(({ mode }) => ({
   resolve: {
     alias: {
       "@": path.resolve(__dirname, "./src"),
+      // Force single React instance (prevents hooks errors like `useEffect` of null)
+      react: path.resolve(__dirname, "./node_modules/react"),
+      "react-dom": path.resolve(__dirname, "./node_modules/react-dom"),
     },
-    // Prevent multiple React copies (can break hooks and cause `useEffect` of null)
     dedupe: ["react", "react-dom"],
+  },
+  optimizeDeps: {
+    include: ["react", "react-dom", "@tanstack/react-query"],
   },
 }));
