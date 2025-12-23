@@ -5,7 +5,7 @@ import { useAuth } from "@/contexts/AuthContext";
 
 const navItems = [
   { href: "/", label: "Home", icon: Home },
-  { href: "/find-friends", label: "Cari", icon: Users, requiresAuth: true },
+  { href: "/find-friends", label: "Explore", icon: Users, requiresAuth: true },
   { href: "/rules", label: "Aturan", icon: ScrollText },
   { href: "/profile", label: "Profil", icon: User, requiresAuth: true },
 ];

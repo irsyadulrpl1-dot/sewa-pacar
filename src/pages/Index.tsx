@@ -10,26 +10,26 @@ import { Heart, Users, Calendar, Shield, Star, ChevronRight, Sparkles, Zap, Coff
 const services = [
   {
     icon: Users,
-    title: "Teman Acara",
-    description: "Butuh partner buat dateng ke pesta, nikahan, atau event kampus? Kita siapin yang paling cocok! 🎉",
+    title: "Date Kondangan",
+    description: "Butuh partner buat dateng ke nikahan atau pesta? Anti malu-maluin, dijamin charming! 💍",
     gradient: "from-lavender to-pink",
   },
   {
     icon: Coffee,
-    title: "Teman Nongkrong",
-    description: "Pengen ngopi cantik atau makan enak tapi males sendirian? Let's go! ☕",
+    title: "Cafe Buddy",
+    description: "Pengen ngopi aesthetic atau makan enak tapi males sendirian? Siap jadi partner foto! ☕",
     gradient: "from-pink to-peach",
   },
   {
     icon: MapPin,
-    title: "Teman Traveling",
-    description: "Liburan jadi lebih seru kalau ada temen! Explore tempat baru bareng yuk~ ✈️",
+    title: "Travel Bestie",
+    description: "Solo trip jadi couple trip! Explore tempat baru bareng yang asik & vibes matching~ ✈️",
     gradient: "from-mint to-sky",
   },
   {
     icon: Zap,
-    title: "Teman Hangout",
-    description: "Dari nonton bioskop, karaoke, sampe window shopping. Everything's better together! 🎬",
+    title: "Hangout Partner",
+    description: "Nonton, karaoke, mall date — semua lebih seru bareng! No more awkward solo 🎬",
     gradient: "from-sky to-lavender",
   },
 ];
@@ -60,24 +60,24 @@ const Index = () => {
               className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-lavender/10 border border-lavender/30 text-primary text-xs md:text-sm font-medium mb-6 md:mb-8"
             >
               <Sparkles size={14} className="text-pink" />
-              <span>Layanan Teman Rental (18+)</span>
+              <span>Rental Pacar Premium (18+)</span>
               <Sparkles size={14} className="text-lavender" />
             </motion.div>
             
             <h1 className="text-3xl md:text-5xl lg:text-7xl font-display font-bold text-foreground leading-tight mb-4 md:mb-6">
-              Cari <span className="text-gradient">Teman Seru</span> Buat Hangout!
+              Jomblo? <span className="text-gradient">Sewa Aja!</span> 💕
             </h1>
             
             <p className="text-base md:text-xl text-muted-foreground mb-8 md:mb-10 leading-relaxed px-2">
-              Butuh partner buat acara, makan bareng, atau sekadar ngobrol santai? 
-              Di sini tempatnya! Aman, asik, dan pastinya <span className="text-primary font-medium">vibes banget</span>! ✨
+              Butuh gebetan dadakan buat kondangan, makan romantis, atau flexing ke mantan? 
+              Di sini tempatnya! <span className="text-primary font-medium">No strings attached</span>, cuma vibes! ✨
             </p>
 
             <div className="flex flex-col sm:flex-row gap-3 md:gap-4 justify-center px-4">
               <Button variant="hero" size="lg" asChild className="w-full sm:w-auto">
                 <Link to="/find-friends">
                   <Sparkles size={18} />
-                  Cari Teman Baru
+                  Cari Pacar Sewaan
                   <ChevronRight size={18} />
                 </Link>
               </Button>
@@ -98,7 +98,7 @@ const Index = () => {
               {[
                 { icon: Shield, label: "100% Aman", color: "mint" },
                 { icon: Star, label: "Rating 5.0", color: "pink" },
-                { icon: Heart, label: "Terpercaya", color: "lavender" },
+                { icon: Heart, label: "Verified Talent", color: "lavender" },
               ].map((item, i) => (
                 <div
                   key={item.label}
@@ -128,10 +128,10 @@ const Index = () => {
               Layanan Kami
             </span>
             <h2 className="text-2xl md:text-4xl lg:text-5xl font-display font-bold text-foreground mt-4 md:mt-6">
-              Mau Ngapain <span className="text-gradient">Hari Ini</span>?
+              Mau <span className="text-gradient">Date</span> Kemana?
             </h2>
             <p className="text-muted-foreground mt-3 md:mt-4 max-w-2xl mx-auto text-sm md:text-base">
-              Dari acara formal sampe hangout santai, kita punya teman yang pas buat setiap momen!
+              Dari kondangan sampe healing, kita punya pacar sewaan yang pas buat setiap momen!
             </p>
           </motion.div>
 
@@ -173,10 +173,10 @@ const Index = () => {
             <div>
               <span className="inline-flex items-center gap-2 text-primary font-medium text-xs md:text-sm tracking-wider uppercase bg-pink/10 px-4 py-2 rounded-full">
                 <Star size={14} />
-                Pilihan Favorit
+                Hot Picks 🔥
               </span>
               <h2 className="text-2xl md:text-4xl lg:text-5xl font-display font-bold text-foreground mt-4 md:mt-6">
-                Teman <span className="text-gradient">Populer</span>
+                Pacar <span className="text-gradient">Favorit</span>
               </h2>
             </div>
             <Button variant="outline" className="mt-4 md:mt-0 hidden md:flex" asChild>
@@ -202,7 +202,7 @@ const Index = () => {
           <div className="flex justify-center mt-6 md:hidden">
             <Button variant="gradient" size="lg" asChild className="w-full max-w-xs">
               <Link to="/find-friends">
-                Cari Teman Baru
+                Cari Pacar Sewaan
                 <ChevronRight size={16} />
               </Link>
             </Button>
@@ -236,15 +236,15 @@ const Index = () => {
             </motion.div>
             
             <h2 className="text-2xl md:text-4xl lg:text-5xl font-display font-bold text-foreground mb-4 md:mb-6">
-              Siap Cari <span className="text-gradient">Teman Seru</span>?
+              Siap <span className="text-gradient">Flexing</span> ke Mantan?
             </h2>
             <p className="text-muted-foreground text-base md:text-lg mb-8 md:mb-10 px-4">
-              Yuk langsung cek teman-teman keren yang udah siap nemenin kamu! 🚀
+              Yuk langsung pilih pacar sewaan yang cocok sama vibe kamu! Anti galau, anti sendirian 🚀
             </p>
             <Button variant="hero" size="lg" asChild className="w-full sm:w-auto max-w-xs">
               <Link to="/find-friends">
                 <Sparkles size={18} />
-                Mulai Sekarang
+                Sewa Sekarang
                 <ChevronRight size={18} />
               </Link>
             </Button>

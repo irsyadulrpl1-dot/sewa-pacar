@@ -101,8 +101,8 @@ export default function FindFriends() {
       const { error } = await acceptFriendRequest(request.id, targetProfile.user_id);
       if (!error) {
         toast({
-          title: "Sekarang berteman! 🎉",
-          description: `Kamu dan ${targetProfile.full_name} sekarang berteman`,
+          title: "It's a match! 💕",
+          description: `Kamu dan ${targetProfile.full_name} sekarang connected`,
         });
       }
     }
@@ -145,7 +145,7 @@ export default function FindFriends() {
         return (
           <Button size="sm" variant="soft" className="rounded-xl h-7 text-xs px-2.5 w-full" disabled>
             <Check className="w-3 h-3 mr-1" />
-            Teman
+            Matched
           </Button>
         );
       case "request_sent":
@@ -197,10 +197,10 @@ export default function FindFriends() {
           className="mb-6"
         >
           <h1 className="text-2xl font-display font-bold text-foreground mb-2">
-            Cari Teman ✨
+            Cari Pacar Sewaan 💕
           </h1>
           <p className="text-muted-foreground">
-            Temuin teman yang cocok buat nemenin kamu
+            Temuin yang cocok buat jadi plus one kamu!
           </p>
         </motion.div>
 
@@ -215,7 +215,7 @@ export default function FindFriends() {
             <div className="flex items-center gap-2">
               <Heart className="w-5 h-5 text-pink" />
               <h2 className="text-lg font-display font-semibold text-foreground">
-                Rekomendasi Untukmu
+                Match Untukmu 💘
               </h2>
             </div>
             <Button
@@ -330,7 +330,7 @@ export default function FindFriends() {
           <div className="flex items-center gap-2 mb-4">
             <Users className="w-5 h-5 text-lavender" />
             <h2 className="text-lg font-display font-semibold text-foreground">
-              Teman Tersedia
+              Pacar Available ✨
             </h2>
           </div>
 
