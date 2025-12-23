@@ -20,13 +20,7 @@ export default defineConfig(({ mode }) => ({
   },
   optimizeDeps: {
     include: [
-      "react",
-      "react-dom",
-      "react/jsx-runtime",
-      "react/jsx-dev-runtime",
       "@tanstack/react-query",
     ],
-    // Force refresh of cached deps
-    force: true,
   },
 }));
