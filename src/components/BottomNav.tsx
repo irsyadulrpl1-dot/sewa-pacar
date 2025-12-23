@@ -1,12 +1,12 @@
 import { Link, useLocation } from "react-router-dom";
 import { motion } from "framer-motion";
-import { Home, Users, MessageCircle, User } from "lucide-react";
+import { Home, Users, ScrollText, User } from "lucide-react";
 import { useAuth } from "@/contexts/AuthContext";
 
 const navItems = [
   { href: "/", label: "Home", icon: Home },
   { href: "/find-friends", label: "Cari", icon: Users, requiresAuth: true },
-  { href: "/messages", label: "Pesan", icon: MessageCircle, requiresAuth: true },
+  { href: "/rules", label: "Aturan", icon: ScrollText },
   { href: "/profile", label: "Profil", icon: User, requiresAuth: true },
 ];
 
