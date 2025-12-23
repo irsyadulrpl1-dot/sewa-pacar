@@ -47,23 +47,36 @@ export function Navbar() {
                 <Link
                   key={link.href}
                   to={link.href}
-                  className="relative px-4 py-1.5 rounded-lg text-sm font-medium transition-colors duration-200"
+                  className="relative px-4 py-1.5 rounded-lg text-sm font-medium"
                 >
-                  <span className={`relative z-10 ${
-                    location.pathname === link.href
-                      ? "text-primary-foreground"
-                      : "text-muted-foreground hover:text-foreground"
-                  }`}>
+                  <motion.span 
+                    className={`relative z-10 transition-colors duration-300 ${
+                      location.pathname === link.href
+                        ? "text-primary-foreground"
+                        : "text-muted-foreground hover:text-foreground"
+                    }`}
+                    initial={false}
+                    animate={{ 
+                      color: location.pathname === link.href 
+                        ? "hsl(var(--primary-foreground))" 
+                        : "hsl(var(--muted-foreground))" 
+                    }}
+                    transition={{ duration: 0.2 }}
+                  >
                     {link.label}
-                  </span>
+                  </motion.span>
                   {location.pathname === link.href && (
                     <motion.div
                       layoutId="navbar-active"
                       className="absolute inset-0 bg-gradient-to-r from-lavender to-pink rounded-lg shadow-sm"
+                      initial={{ opacity: 0, scale: 0.95 }}
+                      animate={{ opacity: 1, scale: 1 }}
+                      exit={{ opacity: 0, scale: 0.95 }}
                       transition={{ 
                         type: "spring", 
-                        stiffness: 400, 
-                        damping: 30 
+                        stiffness: 350, 
+                        damping: 25,
+                        mass: 0.8
                       }}
                     />
                   )}
