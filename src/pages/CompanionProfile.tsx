@@ -53,7 +53,7 @@ const CompanionProfile = () => {
 
   return (
     <MobileLayout showFooter={false}>
-      <main className="pt-4 md:pt-24">
+      <main className="pt-4 md:pt-24 pb-40 md:pb-0">
         <div className="container mx-auto px-4">
           {/* Back Button */}
           <motion.div
