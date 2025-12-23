@@ -6,7 +6,7 @@ import { Button } from "@/components/ui/button";
 
 const navLinks = [
   { href: "/", label: "Home" },
-  { href: "/companions", label: "Temukan Teman" },
+  { href: "/companions", label: "Katalog Pacar" },
   { href: "/rules", label: "Aturan" },
   { href: "/contact", label: "Kontak" },
 ];
@@ -31,7 +31,7 @@ export function Navbar() {
                 <Sparkles size={18} className="text-primary-foreground" />
               </div>
               <span className="text-xl font-display font-bold text-gradient">
-                Temani
+                RentBae
               </span>
             </Link>
 
@@ -64,7 +64,7 @@ export function Navbar() {
               <Button variant="gradient" size="sm" asChild>
                 <Link to="/companions">
                   <Sparkles size={14} />
-                  Cari Teman
+                  Sewa Pacar
                 </Link>
               </Button>
             </div>
@@ -104,7 +104,7 @@ export function Navbar() {
                 <Button variant="gradient" className="mt-2" asChild>
                   <Link to="/companions" onClick={() => setIsOpen(false)}>
                     <Sparkles size={16} />
-                    Cari Teman
+                    Sewa Pacar
                   </Link>
                 </Button>
               </div>

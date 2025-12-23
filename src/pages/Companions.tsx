@@ -96,8 +96,8 @@ const Companions = () => {
       const { error } = await acceptFriendRequest(request.id, targetProfile.user_id);
       if (!error) {
         toast({
-          title: "Sekarang berteman! 🎉",
-          description: `Kamu dan ${targetProfile.full_name} sekarang berteman`,
+          title: "It's a match! 💕",
+          description: `Kamu dan ${targetProfile.full_name} sekarang connected`,
         });
       }
     }
@@ -140,7 +140,7 @@ const Companions = () => {
         return (
           <Button size="sm" variant="soft" className="rounded-xl" disabled>
             <Check className="w-4 h-4 mr-1" />
-            Teman
+            Matched
           </Button>
         );
       case "request_sent":
@@ -193,13 +193,13 @@ const Companions = () => {
             className="text-center"
           >
             <span className="text-primary font-medium text-xs md:text-sm tracking-wider uppercase">
-              Jelajahi
+              Katalog
             </span>
             <h1 className="text-2xl md:text-4xl lg:text-6xl font-display font-bold text-foreground mt-2 md:mt-4">
-              Teman Tersedia
+              Pacar Sewaan 💕
             </h1>
             <p className="text-muted-foreground mt-2 md:mt-4 max-w-xl mx-auto text-sm md:text-base">
-              Temuin teman yang cocok buat nemenin kamu kapan aja dan di mana aja!
+              Temuin yang cocok buat jadi plus one kamu kapan aja dan di mana aja!
             </p>
           </motion.div>
         </div>
@@ -418,7 +418,7 @@ const Companions = () => {
           ) : (
             <div className="text-center py-16 md:py-20">
               <p className="text-muted-foreground text-base md:text-lg">
-                Waduh, nggak ada teman yang cocok nih. Coba ubah filter ya! 😅
+                Waduh, nggak ada yang cocok nih bestie. Coba ubah filter ya! 😅
               </p>
             </div>
           )}

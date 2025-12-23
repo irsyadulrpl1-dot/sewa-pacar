@@ -18,7 +18,7 @@ export function MobileLayout({ children, showFooter = true }: MobileLayoutProps)
       <header className="fixed top-0 left-0 right-0 z-40 md:hidden">
         <div className="flex items-center justify-center h-14 bg-background/80 backdrop-blur-xl border-b border-border/50">
           <span className="text-lg font-display font-bold text-gradient">
-            Temani
+            RentBae
           </span>
         </div>
       </header>

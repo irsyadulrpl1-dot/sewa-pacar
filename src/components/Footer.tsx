@@ -14,11 +14,11 @@ export function Footer() {
                 <Sparkles size={20} className="text-primary-foreground" />
               </div>
               <span className="text-2xl font-display font-bold text-gradient">
-                Temani
+                RentBae
               </span>
             </Link>
             <p className="text-muted-foreground text-sm leading-relaxed mb-6">
-              Platform teman rental terpercaya untuk Gen Z. Aman, asik, dan selalu siap nemenin kamu! ✨
+              Platform rental pacar terpercaya untuk Gen Z. Aman, asik, dan siap jadi plus one kamu! 💕
             </p>
             <div className="flex gap-3">
               <a
@@ -49,7 +49,7 @@ export function Footer() {
               <li>
                 <Link to="/companions" className="text-muted-foreground hover:text-primary transition-colors text-sm flex items-center gap-2">
                   <span className="w-1.5 h-1.5 rounded-full bg-lavender" />
-                  Cari Teman
+                  Katalog Pacar
                 </Link>
               </li>
               <li>
@@ -72,16 +72,16 @@ export function Footer() {
             <h4 className="font-display font-bold text-foreground mb-5 text-lg">Layanan</h4>
             <ul className="space-y-3">
               <li className="text-muted-foreground text-sm flex items-center gap-2">
-                <span>🎉</span> Teman Acara
+                <span>💍</span> Date Kondangan
               </li>
               <li className="text-muted-foreground text-sm flex items-center gap-2">
-                <span>☕</span> Teman Nongkrong
+                <span>☕</span> Cafe Buddy
               </li>
               <li className="text-muted-foreground text-sm flex items-center gap-2">
-                <span>✈️</span> Teman Traveling
+                <span>✈️</span> Travel Bestie
               </li>
               <li className="text-muted-foreground text-sm flex items-center gap-2">
-                <span>🎬</span> Teman Hangout
+                <span>🎬</span> Hangout Partner
               </li>
             </ul>
           </div>
@@ -90,7 +90,7 @@ export function Footer() {
           <div>
             <h4 className="font-display font-bold text-foreground mb-5 text-lg">Kontak</h4>
             <ul className="space-y-3">
-              <li className="text-muted-foreground text-sm">📧 halo@temani.id</li>
+              <li className="text-muted-foreground text-sm">📧 halo@rentbae.id</li>
               <li className="text-muted-foreground text-sm">📱 WA: +62 812 3456 7890</li>
               <li className="text-muted-foreground text-sm">⏰ Online 24/7</li>
             </ul>
@@ -102,7 +102,7 @@ export function Footer() {
 
         <div className="border-t border-border/50 mt-12 pt-8 flex flex-col md:flex-row justify-between items-center gap-4">
           <p className="text-muted-foreground text-sm">
-            © 2024 Temani. All rights reserved. Khusus 18+ ya! 🔞
+            © 2024 RentBae. All rights reserved. Khusus 18+ ya bestie! 🔞
           </p>
           <p className="text-muted-foreground text-sm flex items-center gap-2">
             Made with <Heart size={14} className="text-pink fill-pink" /> by Gen Z, for Gen Z
