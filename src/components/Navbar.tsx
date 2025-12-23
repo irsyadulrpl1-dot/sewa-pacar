@@ -1,7 +1,6 @@
 import { Link, useLocation } from "react-router-dom";
 import { motion, AnimatePresence } from "framer-motion";
-import { Menu, X, Sparkles, User, LogIn, Heart } from "lucide-react";
-import { useState } from "react";
+import { Sparkles, User, LogIn, Heart, MessageCircle } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { useAuth } from "@/contexts/AuthContext";
 
@@ -14,7 +13,6 @@ const navLinks = [
 
 export function Navbar() {
   const location = useLocation();
-  const [isOpen, setIsOpen] = useState(false);
   const { user } = useAuth();
 
   return (
@@ -24,7 +22,7 @@ export function Navbar() {
       transition={{ duration: 0.5, ease: [0.25, 0.46, 0.45, 0.94] }}
       className="fixed top-4 left-4 right-4 z-50 hidden md:block"
     >
-      <nav className="glass rounded-2xl border border-border/40 shadow-lg backdrop-blur-xl mx-auto max-w-4xl">
+      <nav className="glass rounded-2xl border border-border/40 shadow-lg backdrop-blur-xl mx-auto max-w-5xl">
         <div className="px-5">
           <div className="flex items-center justify-between h-14">
             {/* Logo */}
@@ -95,6 +93,17 @@ export function Navbar() {
                     exit={{ opacity: 0, x: -10 }}
                     className="flex items-center gap-2"
                   >
+                    <Button 
+                      variant="ghost" 
+                      size="sm" 
+                      asChild 
+                      className="rounded-lg h-8 px-3 text-sm hover:bg-muted/60"
+                    >
+                      <Link to="/messages" className="flex items-center gap-1.5">
+                        <MessageCircle size={14} />
+                        <span>Chat</span>
+                      </Link>
+                    </Button>
                     <Button 
                       variant="ghost" 
                       size="sm" 
