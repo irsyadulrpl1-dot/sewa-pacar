@@ -308,6 +308,21 @@ export type Database = {
         }
         Returns: boolean
       }
+      search_profiles: {
+        Args: { search_query?: string }
+        Returns: {
+          avatar_url: string
+          bio: string
+          city: string
+          full_name: string
+          gender: Database["public"]["Enums"]["gender_type"]
+          interests: string[]
+          is_online: boolean
+          is_verified: boolean
+          user_id: string
+          username: string
+        }[]
+      }
     }
     Enums: {
       app_role: "user" | "talent" | "admin"
