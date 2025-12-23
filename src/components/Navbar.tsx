@@ -20,7 +20,7 @@ export function Navbar() {
       initial={{ y: -100 }}
       animate={{ y: 0 }}
       transition={{ duration: 0.6, ease: "easeOut" }}
-      className="fixed top-4 left-4 right-4 z-50"
+      className="fixed top-4 left-4 right-4 z-50 hidden md:block"
     >
       <nav className="glass rounded-2xl border border-border/50 shadow-soft mx-auto max-w-5xl">
         <div className="px-6">
