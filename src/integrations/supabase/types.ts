@@ -301,6 +301,23 @@ export type Database = {
       [_ in never]: never
     }
     Functions: {
+      get_friend_profile: {
+        Args: { friend_user_id: string }
+        Returns: {
+          avatar_url: string
+          bio: string
+          city: string
+          created_at: string
+          full_name: string
+          gender: Database["public"]["Enums"]["gender_type"]
+          interests: string[]
+          is_online: boolean
+          is_verified: boolean
+          last_seen: string
+          user_id: string
+          username: string
+        }[]
+      }
       has_role: {
         Args: {
           _role: Database["public"]["Enums"]["app_role"]

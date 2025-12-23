@@ -1,7 +1,22 @@
 import { useState, useEffect, useCallback } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/contexts/AuthContext";
-import { Profile } from "./useProfile";
+
+// Safe profile type without sensitive data (email, date_of_birth excluded)
+export interface SafeFriendProfile {
+  user_id: string;
+  full_name: string;
+  username: string;
+  avatar_url: string | null;
+  city: string | null;
+  bio: string | null;
+  interests: string[] | null;
+  is_online: boolean | null;
+  is_verified: boolean | null;
+  gender: "male" | "female" | "other" | "prefer_not_to_say" | null;
+  last_seen: string | null;
+  created_at: string;
+}
 
 interface FriendRequest {
   id: string;
@@ -9,8 +24,8 @@ interface FriendRequest {
   receiver_id: string;
   status: "pending" | "accepted" | "rejected";
   created_at: string;
-  sender?: Profile;
-  receiver?: Profile;
+  sender?: SafeFriendProfile;
+  receiver?: SafeFriendProfile;
 }
 
 interface Friend {
@@ -18,7 +33,7 @@ interface Friend {
   user_id: string;
   friend_id: string;
   created_at: string;
-  friend?: Profile;
+  friend?: SafeFriendProfile;
 }
 
 export function useFriends() {
@@ -38,22 +53,27 @@ export function useFriends() {
       .or(`user_id.eq.${user.id},friend_id.eq.${user.id}`);
 
     if (friendsData) {
-      // Fetch friend profiles
+      // Fetch friend profiles using secure function (excludes email)
       const friendIds = friendsData.map(f => 
         f.user_id === user.id ? f.friend_id : f.user_id
       );
       
       if (friendIds.length > 0) {
-        const { data: profiles } = await supabase
-          .from("profiles")
-          .select("*")
-          .in("user_id", friendIds);
+        // Use the secure get_friend_profile function for each friend
+        const profilePromises = friendIds.map(friendId =>
+          supabase.rpc("get_friend_profile", { friend_user_id: friendId })
+        );
+        
+        const profileResults = await Promise.all(profilePromises);
+        const profiles = profileResults
+          .filter(result => result.data && result.data.length > 0)
+          .map(result => result.data![0] as SafeFriendProfile);
 
         const friendsWithProfiles = friendsData.map(f => ({
           ...f,
-          friend: profiles?.find(p => 
+          friend: profiles.find(p => 
             p.user_id === (f.user_id === user.id ? f.friend_id : f.user_id)
-          ) as Profile | undefined
+          )
         }));
         
         setFriends(friendsWithProfiles);
@@ -76,15 +96,20 @@ export function useFriends() {
     if (sent) {
       const receiverIds = sent.map(r => r.receiver_id);
       if (receiverIds.length > 0) {
-        const { data: profiles } = await supabase
-          .from("profiles")
-          .select("*")
-          .in("user_id", receiverIds);
+        // Use the secure get_friend_profile function (excludes email)
+        const profilePromises = receiverIds.map(receiverId =>
+          supabase.rpc("get_friend_profile", { friend_user_id: receiverId })
+        );
+        
+        const profileResults = await Promise.all(profilePromises);
+        const profiles = profileResults
+          .filter(result => result.data && result.data.length > 0)
+          .map(result => result.data![0] as SafeFriendProfile);
         
         setSentRequests(sent.map(r => ({
           ...r,
           status: r.status as "pending" | "accepted" | "rejected",
-          receiver: profiles?.find(p => p.user_id === r.receiver_id) as Profile | undefined
+          receiver: profiles.find(p => p.user_id === r.receiver_id)
         })));
       } else {
         setSentRequests([]);
@@ -101,15 +126,20 @@ export function useFriends() {
     if (received) {
       const senderIds = received.map(r => r.sender_id);
       if (senderIds.length > 0) {
-        const { data: profiles } = await supabase
-          .from("profiles")
-          .select("*")
-          .in("user_id", senderIds);
+        // Use the secure get_friend_profile function (excludes email)
+        const profilePromises = senderIds.map(senderId =>
+          supabase.rpc("get_friend_profile", { friend_user_id: senderId })
+        );
+        
+        const profileResults = await Promise.all(profilePromises);
+        const profiles = profileResults
+          .filter(result => result.data && result.data.length > 0)
+          .map(result => result.data![0] as SafeFriendProfile);
         
         setReceivedRequests(received.map(r => ({
           ...r,
           status: r.status as "pending" | "accepted" | "rejected",
-          sender: profiles?.find(p => p.user_id === r.sender_id) as Profile | undefined
+          sender: profiles.find(p => p.user_id === r.sender_id)
         })));
       } else {
         setReceivedRequests([]);
