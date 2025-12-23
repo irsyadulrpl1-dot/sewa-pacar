@@ -33,10 +33,10 @@ const CompanionProfile = () => {
         <div className="min-h-[60vh] flex items-center justify-center">
           <div className="text-center px-4">
             <h1 className="text-xl md:text-2xl font-display text-foreground mb-4">
-              Teman nggak ketemu nih 😢
+              Pacar sewaan nggak ketemu nih 😢
             </h1>
             <Button variant="gradient" asChild>
-              <Link to="/companions">Lihat Teman Lain</Link>
+              <Link to="/companions">Lihat Yang Lain</Link>
             </Button>
           </div>
         </div>

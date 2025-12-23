@@ -1,8 +1,9 @@
 import { Link, useLocation } from "react-router-dom";
 import { motion } from "framer-motion";
-import { Menu, X, Sparkles } from "lucide-react";
+import { Menu, X, Sparkles, User, LogIn } from "lucide-react";
 import { useState } from "react";
 import { Button } from "@/components/ui/button";
+import { useAuth } from "@/contexts/AuthContext";
 
 const navLinks = [
   { href: "/", label: "Home" },
@@ -14,6 +15,7 @@ const navLinks = [
 export function Navbar() {
   const location = useLocation();
   const [isOpen, setIsOpen] = useState(false);
+  const { user } = useAuth();
 
   return (
     <motion.header
@@ -59,14 +61,39 @@ export function Navbar() {
               ))}
             </div>
 
-            {/* CTA Button */}
-            <div className="hidden md:block">
-              <Button variant="gradient" size="sm" asChild>
-                <Link to="/companions">
-                  <Sparkles size={14} />
-                  Sewa Pacar
-                </Link>
-              </Button>
+            {/* CTA Buttons */}
+            <div className="hidden md:flex items-center gap-2">
+              {user ? (
+                <>
+                  <Button variant="ghost" size="sm" asChild className="rounded-xl">
+                    <Link to="/profile">
+                      <User size={16} />
+                      Profil
+                    </Link>
+                  </Button>
+                  <Button variant="gradient" size="sm" asChild>
+                    <Link to="/find-friends">
+                      <Sparkles size={14} />
+                      Explore
+                    </Link>
+                  </Button>
+                </>
+              ) : (
+                <>
+                  <Button variant="ghost" size="sm" asChild className="rounded-xl">
+                    <Link to="/auth">
+                      <LogIn size={16} />
+                      Masuk
+                    </Link>
+                  </Button>
+                  <Button variant="gradient" size="sm" asChild>
+                    <Link to="/companions">
+                      <Sparkles size={14} />
+                      Sewa Pacar
+                    </Link>
+                  </Button>
+                </>
+              )}
             </div>
 
             {/* Mobile Menu Button */}
