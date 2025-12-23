@@ -13,10 +13,8 @@ export default defineConfig(({ mode }) => ({
   resolve: {
     alias: {
       "@": path.resolve(__dirname, "./src"),
-      // Force single React instance (prevents hooks errors like `useEffect` of null)
-      react: path.resolve(__dirname, "./node_modules/react"),
-      "react-dom": path.resolve(__dirname, "./node_modules/react-dom"),
     },
+    // Ensure a single React copy is used (prevents hooks errors like `useEffect` of null)
     dedupe: ["react", "react-dom"],
   },
   optimizeDeps: {
