@@ -1,29 +1,47 @@
 import { useState } from "react";
 import { supabase } from "@/integrations/supabase/client";
-import { Profile } from "./useProfile";
 import { useAuth } from "@/contexts/AuthContext";
+
+// Safe profile type for search results (without sensitive data like email, date_of_birth)
+export interface SafeProfile {
+  user_id: string;
+  full_name: string;
+  username: string;
+  avatar_url: string | null;
+  city: string | null;
+  bio: string | null;
+  interests: string[] | null;
+  is_online: boolean | null;
+  is_verified: boolean | null;
+  gender: "male" | "female" | "other" | "prefer_not_to_say" | null;
+}
+
+// Type for profile with optional sensitive fields (for compatibility)
+interface ProfileWithOptionalSensitive {
+  city?: string | null;
+  interests?: string[] | null;
+}
 
 export function useSearch() {
   const { user } = useAuth();
-  const [results, setResults] = useState<Profile[]>([]);
+  const [results, setResults] = useState<SafeProfile[]>([]);
   const [loading, setLoading] = useState(false);
 
-  const getRecommendedUsers = async (userProfile: Profile | null) => {
+  const getRecommendedUsers = async (userProfile: ProfileWithOptionalSensitive | null) => {
     if (!user) return;
 
     setLoading(true);
 
-    const { data, error } = await supabase
-      .from("profiles")
-      .select("*")
-      .neq("user_id", user.id)
-      .limit(50);
+    // Use the secure search_profiles function instead of direct table access
+    const { data, error } = await supabase.rpc("search_profiles", {
+      search_query: "",
+    });
 
     if (error) {
       console.error("Fetch error:", error);
       setResults([]);
     } else {
-      let profiles = data as Profile[];
+      let profiles = (data || []) as SafeProfile[];
       
       // Score and sort by relevance
       if (userProfile) {
@@ -62,9 +80,29 @@ export function useSearch() {
     setLoading(false);
   };
 
+  const searchUsers = async (query: string) => {
+    if (!user) return;
+
+    setLoading(true);
+
+    const { data, error } = await supabase.rpc("search_profiles", {
+      search_query: query,
+    });
+
+    if (error) {
+      console.error("Search error:", error);
+      setResults([]);
+    } else {
+      setResults((data || []) as SafeProfile[]);
+    }
+
+    setLoading(false);
+  };
+
   return {
     results,
     loading,
     getRecommendedUsers,
+    searchUsers,
   };
 }

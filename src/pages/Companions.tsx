@@ -17,9 +17,9 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { useAuth } from "@/contexts/AuthContext";
-import { useSearch } from "@/hooks/useSearch";
+import { useSearch, SafeProfile } from "@/hooks/useSearch";
 import { useFriends } from "@/hooks/useFriends";
-import { useProfile, Profile } from "@/hooks/useProfile";
+import { useProfile } from "@/hooks/useProfile";
 import { useToast } from "@/hooks/use-toast";
 
 const Companions = () => {
@@ -64,7 +64,7 @@ const Companions = () => {
       return 0;
     });
 
-  const handleFriendAction = async (targetProfile: Profile) => {
+  const handleFriendAction = async (targetProfile: SafeProfile) => {
     if (!user) {
       navigate("/auth");
       return;
@@ -103,19 +103,7 @@ const Companions = () => {
     }
   };
 
-  const calculateAge = (birthDate: string | null) => {
-    if (!birthDate) return null;
-    const today = new Date();
-    const birth = new Date(birthDate);
-    let age = today.getFullYear() - birth.getFullYear();
-    const monthDiff = today.getMonth() - birth.getMonth();
-    if (monthDiff < 0 || (monthDiff === 0 && today.getDate() < birth.getDate())) {
-      age--;
-    }
-    return age;
-  };
-
-  const getSharedInfo = (targetProfile: Profile) => {
+  const getSharedInfo = (targetProfile: SafeProfile) => {
     const shared: string[] = [];
     if (profile?.city && targetProfile.city && 
         profile.city.toLowerCase() === targetProfile.city.toLowerCase()) {
@@ -132,7 +120,7 @@ const Companions = () => {
     return shared;
   };
 
-  const FriendButton = ({ profile: targetProfile }: { profile: Profile }) => {
+  const FriendButton = ({ profile: targetProfile }: { profile: SafeProfile }) => {
     const status = getFriendStatus(targetProfile.user_id);
     
     switch (status) {
@@ -244,7 +232,7 @@ const Companions = () => {
                     
                     return (
                       <motion.div
-                        key={targetProfile.id}
+                        key={targetProfile.user_id}
                         initial={{ opacity: 0, x: 20 }}
                         animate={{ opacity: 1, x: 0 }}
                         transition={{ delay: index * 0.05 }}
@@ -281,9 +269,6 @@ const Companions = () => {
                             )}
                           </div>
                           <div className="flex items-center justify-center gap-2 text-xs text-muted-foreground">
-                            {targetProfile.date_of_birth && (
-                              <span>{calculateAge(targetProfile.date_of_birth)} th</span>
-                            )}
                             {targetProfile.city && (
                               <span className="flex items-center gap-0.5">
                                 <MapPin className="w-3 h-3" />
