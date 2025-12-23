@@ -143,8 +143,8 @@ export default function FindFriends() {
     switch (status) {
       case "friends":
         return (
-          <Button size="sm" variant="soft" className="rounded-xl" disabled>
-            <Check className="w-4 h-4 mr-1" />
+          <Button size="sm" variant="soft" className="rounded-xl h-7 text-xs px-2.5 w-full" disabled>
+            <Check className="w-3 h-3 mr-1" />
             Teman
           </Button>
         );
@@ -153,10 +153,10 @@ export default function FindFriends() {
           <Button 
             size="sm" 
             variant="outline" 
-            className="rounded-xl"
+            className="rounded-xl h-7 text-xs px-2.5 w-full"
             onClick={() => handleFriendAction(targetProfile)}
           >
-            <Clock className="w-4 h-4 mr-1" />
+            <Clock className="w-3 h-3 mr-1" />
             Pending
           </Button>
         );
@@ -165,10 +165,10 @@ export default function FindFriends() {
           <Button 
             size="sm" 
             variant="gradient" 
-            className="rounded-xl"
+            className="rounded-xl h-7 text-xs px-2.5 w-full"
             onClick={() => handleFriendAction(targetProfile)}
           >
-            <Check className="w-4 h-4 mr-1" />
+            <Check className="w-3 h-3 mr-1" />
             Terima
           </Button>
         );
@@ -177,10 +177,10 @@ export default function FindFriends() {
           <Button 
             size="sm" 
             variant="gradient" 
-            className="rounded-xl"
+            className="rounded-xl h-7 text-xs px-2.5 w-full"
             onClick={() => handleFriendAction(targetProfile)}
           >
-            <UserPlus className="w-4 h-4 mr-1" />
+            <UserPlus className="w-3 h-3 mr-1" />
             Tambah
           </Button>
         );
@@ -246,20 +246,21 @@ export default function FindFriends() {
               </Button>
             </div>
           ) : (
-            <div className="flex gap-3 overflow-x-auto pb-2 -mx-4 px-4 scrollbar-hide">
+            <div className="grid grid-cols-2 gap-3 sm:flex sm:gap-3 sm:overflow-x-auto sm:pb-2 sm:-mx-4 sm:px-4 scrollbar-hide">
               {results.slice(0, 8).map((targetProfile, index) => {
                 const sharedInfo = getSharedInfo(targetProfile);
                 
                 return (
                   <motion.div
                     key={targetProfile.id}
-                    initial={{ opacity: 0, x: 20 }}
-                    animate={{ opacity: 1, x: 0 }}
+                    initial={{ opacity: 0, scale: 0.95 }}
+                    animate={{ opacity: 1, scale: 1 }}
                     transition={{ delay: index * 0.05 }}
-                    className="flex-shrink-0 w-[180px] glass-card rounded-2xl p-4"
+                    className="sm:flex-shrink-0 sm:w-[160px] glass-card rounded-2xl p-3"
                   >
-                    <div className="relative mb-3 flex justify-center">
-                      <div className="w-14 h-14 rounded-full bg-gradient-to-br from-lavender to-pink p-0.5">
+                    {/* Avatar */}
+                    <div className="relative mb-2 flex justify-center">
+                      <div className="w-12 h-12 rounded-full bg-gradient-to-br from-lavender to-pink p-0.5">
                         <div className="w-full h-full rounded-full bg-background flex items-center justify-center overflow-hidden">
                           {targetProfile.avatar_url ? (
                             <img 
@@ -273,33 +274,35 @@ export default function FindFriends() {
                         </div>
                       </div>
                       {targetProfile.is_online && (
-                        <div className="absolute bottom-0 right-1/2 translate-x-7 w-3 h-3 bg-mint rounded-full border-2 border-background" />
+                        <div className="absolute bottom-0 right-1/2 translate-x-5 w-2.5 h-2.5 bg-mint rounded-full border-2 border-background" />
                       )}
                     </div>
 
-                    <div className="text-center mb-3">
-                      <h3 className="font-semibold text-foreground text-sm truncate">
+                    {/* Name & Info */}
+                    <div className="text-center mb-2">
+                      <h3 className="font-semibold text-foreground text-xs truncate px-1">
                         {targetProfile.full_name}
                       </h3>
-                      <div className="flex items-center justify-center gap-2 text-xs text-muted-foreground mt-1">
+                      <div className="flex items-center justify-center gap-1.5 text-[10px] text-muted-foreground mt-0.5">
                         {targetProfile.date_of_birth && (
                           <span>{calculateAge(targetProfile.date_of_birth)} th</span>
                         )}
                         {targetProfile.city && (
-                          <span className="flex items-center gap-0.5">
-                            <MapPin className="w-3 h-3" />
-                            {targetProfile.city}
+                          <span className="flex items-center gap-0.5 truncate max-w-[60px]">
+                            <MapPin className="w-2.5 h-2.5 flex-shrink-0" />
+                            <span className="truncate">{targetProfile.city}</span>
                           </span>
                         )}
                       </div>
                     </div>
 
+                    {/* Shared Info */}
                     {sharedInfo.length > 0 && (
-                      <div className="flex flex-wrap gap-1 justify-center mb-3">
-                        {sharedInfo.map((info, i) => (
+                      <div className="flex flex-wrap gap-1 justify-center mb-2">
+                        {sharedInfo.slice(0, 1).map((info, i) => (
                           <span 
                             key={i}
-                            className="text-[10px] bg-primary/10 text-primary px-2 py-0.5 rounded-full"
+                            className="text-[9px] bg-primary/10 text-primary px-1.5 py-0.5 rounded-full truncate max-w-full"
                           >
                             {info}
                           </span>
@@ -307,7 +310,10 @@ export default function FindFriends() {
                       </div>
                     )}
 
-                    <FriendButton profile={targetProfile} />
+                    {/* Action Button */}
+                    <div className="flex justify-center">
+                      <FriendButton profile={targetProfile} />
+                    </div>
                   </motion.div>
                 );
               })}
