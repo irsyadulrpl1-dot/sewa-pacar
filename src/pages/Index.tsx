@@ -75,9 +75,9 @@ const Index = () => {
 
             <div className="flex flex-col sm:flex-row gap-3 md:gap-4 justify-center px-4">
               <Button variant="hero" size="lg" asChild className="w-full sm:w-auto">
-                <Link to="/companions">
+                <Link to="/find-friends">
                   <Sparkles size={18} />
-                  Lihat Semua Teman
+                  Cari Teman Baru
                   <ChevronRight size={18} />
                 </Link>
               </Button>
@@ -201,8 +201,8 @@ const Index = () => {
           {/* Mobile see all button */}
           <div className="flex justify-center mt-6 md:hidden">
             <Button variant="gradient" size="lg" asChild className="w-full max-w-xs">
-              <Link to="/companions">
-                Lihat Semua Teman
+              <Link to="/find-friends">
+                Cari Teman Baru
                 <ChevronRight size={16} />
               </Link>
             </Button>
@@ -242,7 +242,7 @@ const Index = () => {
               Yuk langsung cek teman-teman keren yang udah siap nemenin kamu! 🚀
             </p>
             <Button variant="hero" size="lg" asChild className="w-full sm:w-auto max-w-xs">
-              <Link to="/companions">
+              <Link to="/find-friends">
                 <Sparkles size={18} />
                 Mulai Sekarang
                 <ChevronRight size={18} />

@@ -1,7 +1,7 @@
 import { useState, useEffect } from "react";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, Link } from "react-router-dom";
 import { motion } from "framer-motion";
-import { MapPin, User, UserPlus, Clock, Check, Sparkles, Heart, RefreshCw } from "lucide-react";
+import { MapPin, User, UserPlus, Clock, Check, Sparkles, Heart, RefreshCw, ChevronRight } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { MobileLayout } from "@/components/MobileLayout";
@@ -166,25 +166,35 @@ export default function FindFriends() {
         <motion.div
           initial={{ opacity: 0, y: -20 }}
           animate={{ opacity: 1, y: 0 }}
-          className="mb-6 flex items-start justify-between"
+          className="mb-6"
         >
-          <div>
-            <h1 className="text-2xl font-display font-bold text-foreground mb-2 flex items-center gap-2">
-              <Heart className="w-6 h-6 text-pink" />
-              Rekomendasi Teman
-            </h1>
-            <p className="text-muted-foreground">
-              Teman yang cocok buat kamu
-            </p>
+          <div className="flex items-start justify-between mb-4">
+            <div>
+              <h1 className="text-2xl font-display font-bold text-foreground mb-2 flex items-center gap-2">
+                <Heart className="w-6 h-6 text-pink" />
+                Rekomendasi Teman
+              </h1>
+              <p className="text-muted-foreground">
+                Teman yang cocok buat kamu
+              </p>
+            </div>
+            <Button
+              variant="outline"
+              size="icon"
+              className="rounded-xl"
+              onClick={handleRefresh}
+              disabled={loading}
+            >
+              <RefreshCw className={`w-5 h-5 ${loading ? 'animate-spin' : ''}`} />
+            </Button>
           </div>
-          <Button
-            variant="outline"
-            size="icon"
-            className="rounded-xl"
-            onClick={handleRefresh}
-            disabled={loading}
-          >
-            <RefreshCw className={`w-5 h-5 ${loading ? 'animate-spin' : ''}`} />
+          
+          {/* Link to Companions */}
+          <Button variant="soft" size="sm" asChild className="rounded-xl">
+            <Link to="/companions">
+              Jelajahi Semua Teman
+              <ChevronRight className="w-4 h-4 ml-1" />
+            </Link>
           </Button>
         </motion.div>
 
