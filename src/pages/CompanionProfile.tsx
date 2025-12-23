@@ -1,5 +1,5 @@
 import { motion } from "framer-motion";
-import { useParams, Link } from "react-router-dom";
+import { useParams, Link, useNavigate } from "react-router-dom";
 import { MobileLayout } from "@/components/MobileLayout";
 import { Button } from "@/components/ui/button";
 import { companions } from "@/data/companions";
@@ -12,10 +12,14 @@ import {
   ChevronLeft,
   Check,
 } from "lucide-react";
+import { useAuth } from "@/contexts/AuthContext";
+import { toast } from "sonner";
 import { Badge } from "@/components/ui/badge";
 
 const CompanionProfile = () => {
   const { id } = useParams();
+  const { user } = useAuth();
+  const navigate = useNavigate();
   const companion = companions.find((c) => c.id === id);
 
   const formatPrice = (price: number) => {
@@ -44,11 +48,14 @@ const CompanionProfile = () => {
     );
   }
 
-  const handleWhatsAppClick = () => {
-    const message = encodeURIComponent(
-      `Hai! Aku tertarik buat booking ${companion.name}. Bisa kasih info lebih lanjut dong?`
-    );
-    window.open(`https://wa.me/${companion.whatsapp.replace(/\+/g, "")}?text=${message}`, "_blank");
+  const handleChatClick = () => {
+    if (!user) {
+      toast.info("Silakan login terlebih dahulu untuk chat");
+      navigate("/auth");
+      return;
+    }
+    // Navigate to companion chat page
+    navigate(`/companion-chat/${companion.id}`);
   };
 
   return (
@@ -188,9 +195,9 @@ const CompanionProfile = () => {
         {/* Fixed CTA for mobile */}
         <div className="fixed bottom-20 left-0 right-0 p-4 bg-background/95 backdrop-blur-xl border-t border-border md:hidden z-40">
           <div className="flex gap-3">
-            <Button variant="gradient" className="flex-1" onClick={handleWhatsAppClick}>
+            <Button variant="gradient" className="flex-1" onClick={handleChatClick}>
               <MessageCircle size={18} />
-              Booking via WhatsApp
+              Chat Sekarang
             </Button>
             <Button variant="outline" size="icon" className="h-12 w-12 shrink-0">
               <Heart size={18} />
@@ -201,9 +208,9 @@ const CompanionProfile = () => {
         {/* Desktop CTA */}
         <div className="hidden md:block container mx-auto px-4 py-8">
           <div className="flex flex-col sm:flex-row gap-4 max-w-md">
-            <Button variant="gradient" size="lg" className="flex-1" onClick={handleWhatsAppClick}>
+            <Button variant="gradient" size="lg" className="flex-1" onClick={handleChatClick}>
               <MessageCircle size={18} />
-              Booking via WhatsApp
+              Chat Sekarang
             </Button>
             <Button variant="outline" size="lg" className="flex-1">
               <Heart size={18} />
