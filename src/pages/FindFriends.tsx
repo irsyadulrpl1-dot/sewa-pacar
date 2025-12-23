@@ -1,66 +1,52 @@
 import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
-import { motion, AnimatePresence } from "framer-motion";
-import { Search, Filter, MapPin, User, UserPlus, Clock, Check, X, Sparkles } from "lucide-react";
+import { motion } from "framer-motion";
+import { MapPin, User, UserPlus, Clock, Check, Sparkles, Heart, RefreshCw } from "lucide-react";
 import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
 import { Badge } from "@/components/ui/badge";
 import { MobileLayout } from "@/components/MobileLayout";
 import { useAuth } from "@/contexts/AuthContext";
 import { useSearch } from "@/hooks/useSearch";
 import { useFriends } from "@/hooks/useFriends";
+import { useProfile, Profile } from "@/hooks/useProfile";
 import { useToast } from "@/hooks/use-toast";
-import { Profile } from "@/hooks/useProfile";
 
 export default function FindFriends() {
   const { user } = useAuth();
   const navigate = useNavigate();
   const { toast } = useToast();
-  const { results, loading, searchUsers, getAllUsers } = useSearch();
+  const { profile } = useProfile();
+  const { results, loading, getRecommendedUsers } = useSearch();
   const { 
     sendFriendRequest, 
     cancelFriendRequest,
     acceptFriendRequest,
-    rejectFriendRequest,
     getFriendStatus, 
     getRequestByUser 
   } = useFriends();
 
-  const [showFilters, setShowFilters] = useState(false);
-  const [filters, setFilters] = useState({
-    query: "",
-    city: "",
-    gender: "all",
-    minAge: 18,
-    maxAge: 100,
-    onlineOnly: false,
-  });
-
   useEffect(() => {
     if (!user) {
       navigate("/auth");
-    } else {
-      getAllUsers();
     }
   }, [user, navigate]);
 
-  const handleSearch = () => {
-    searchUsers({
-      query: filters.query || undefined,
-      city: filters.city || undefined,
-      gender: filters.gender !== "all" ? filters.gender : undefined,
-      minAge: filters.minAge,
-      maxAge: filters.maxAge,
-      onlineOnly: filters.onlineOnly,
-    });
+  useEffect(() => {
+    if (user) {
+      getRecommendedUsers(profile);
+    }
+  }, [user, profile]);
+
+  const handleRefresh = () => {
+    getRecommendedUsers(profile);
   };
 
-  const handleFriendAction = async (profile: Profile) => {
-    const status = getFriendStatus(profile.user_id);
-    const request = getRequestByUser(profile.user_id);
+  const handleFriendAction = async (targetProfile: Profile) => {
+    const status = getFriendStatus(targetProfile.user_id);
+    const request = getRequestByUser(targetProfile.user_id);
 
     if (status === "none") {
-      const { error } = await sendFriendRequest(profile.user_id);
+      const { error } = await sendFriendRequest(targetProfile.user_id);
       if (error) {
         toast({
           title: "Gagal mengirim permintaan",
@@ -70,7 +56,7 @@ export default function FindFriends() {
       } else {
         toast({
           title: "Permintaan terkirim! 💌",
-          description: `Menunggu ${profile.full_name} menerima`,
+          description: `Menunggu ${targetProfile.full_name} menerima`,
         });
       }
     } else if (status === "request_sent" && request) {
@@ -81,11 +67,11 @@ export default function FindFriends() {
         });
       }
     } else if (status === "request_received" && request) {
-      const { error } = await acceptFriendRequest(request.id, profile.user_id);
+      const { error } = await acceptFriendRequest(request.id, targetProfile.user_id);
       if (!error) {
         toast({
           title: "Sekarang berteman! 🎉",
-          description: `Kamu dan ${profile.full_name} sekarang berteman`,
+          description: `Kamu dan ${targetProfile.full_name} sekarang berteman`,
         });
       }
     }
@@ -103,8 +89,28 @@ export default function FindFriends() {
     return age;
   };
 
-  const FriendButton = ({ profile }: { profile: Profile }) => {
-    const status = getFriendStatus(profile.user_id);
+  const getSharedInfo = (targetProfile: Profile) => {
+    const shared: string[] = [];
+    
+    if (profile?.city && targetProfile.city && 
+        profile.city.toLowerCase() === targetProfile.city.toLowerCase()) {
+      shared.push(`📍 Sama-sama di ${targetProfile.city}`);
+    }
+    
+    if (profile?.interests && targetProfile.interests) {
+      const sharedInterests = profile.interests.filter(
+        interest => targetProfile.interests?.includes(interest)
+      );
+      if (sharedInterests.length > 0) {
+        shared.push(`💫 Minat sama: ${sharedInterests.slice(0, 2).join(", ")}`);
+      }
+    }
+    
+    return shared;
+  };
+
+  const FriendButton = ({ profile: targetProfile }: { profile: Profile }) => {
+    const status = getFriendStatus(targetProfile.user_id);
     
     switch (status) {
       case "friends":
@@ -120,7 +126,7 @@ export default function FindFriends() {
             size="sm" 
             variant="outline" 
             className="rounded-xl"
-            onClick={() => handleFriendAction(profile)}
+            onClick={() => handleFriendAction(targetProfile)}
           >
             <Clock className="w-4 h-4 mr-1" />
             Menunggu
@@ -132,7 +138,7 @@ export default function FindFriends() {
             size="sm" 
             variant="gradient" 
             className="rounded-xl"
-            onClick={() => handleFriendAction(profile)}
+            onClick={() => handleFriendAction(targetProfile)}
           >
             <Check className="w-4 h-4 mr-1" />
             Terima
@@ -144,7 +150,7 @@ export default function FindFriends() {
             size="sm" 
             variant="gradient" 
             className="rounded-xl"
-            onClick={() => handleFriendAction(profile)}
+            onClick={() => handleFriendAction(targetProfile)}
           >
             <UserPlus className="w-4 h-4 mr-1" />
             Tambah
@@ -160,119 +166,27 @@ export default function FindFriends() {
         <motion.div
           initial={{ opacity: 0, y: -20 }}
           animate={{ opacity: 1, y: 0 }}
-          className="mb-6"
+          className="mb-6 flex items-start justify-between"
         >
-          <h1 className="text-2xl font-display font-bold text-foreground mb-2">
-            Cari Teman ✨
-          </h1>
-          <p className="text-muted-foreground">
-            Temukan teman baru untuk hangout bareng
-          </p>
-        </motion.div>
-
-        {/* Search Bar */}
-        <motion.div
-          initial={{ opacity: 0, y: 20 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ delay: 0.1 }}
-          className="flex gap-2 mb-4"
-        >
-          <div className="flex-1 relative">
-            <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 text-muted-foreground" />
-            <Input
-              placeholder="Cari nama atau username..."
-              value={filters.query}
-              onChange={(e) => setFilters(prev => ({ ...prev, query: e.target.value }))}
-              className="pl-10 rounded-xl h-12"
-              onKeyPress={(e) => e.key === "Enter" && handleSearch()}
-            />
+          <div>
+            <h1 className="text-2xl font-display font-bold text-foreground mb-2 flex items-center gap-2">
+              <Heart className="w-6 h-6 text-pink" />
+              Rekomendasi Teman
+            </h1>
+            <p className="text-muted-foreground">
+              Teman yang cocok buat kamu
+            </p>
           </div>
           <Button
-            variant={showFilters ? "gradient" : "outline"}
+            variant="outline"
             size="icon"
-            className="h-12 w-12 rounded-xl shrink-0"
-            onClick={() => setShowFilters(!showFilters)}
+            className="rounded-xl"
+            onClick={handleRefresh}
+            disabled={loading}
           >
-            <Filter className="w-5 h-5" />
-          </Button>
-          <Button
-            variant="gradient"
-            className="h-12 rounded-xl shrink-0"
-            onClick={handleSearch}
-          >
-            Cari
+            <RefreshCw className={`w-5 h-5 ${loading ? 'animate-spin' : ''}`} />
           </Button>
         </motion.div>
-
-        {/* Filters */}
-        <AnimatePresence>
-          {showFilters && (
-            <motion.div
-              initial={{ opacity: 0, height: 0 }}
-              animate={{ opacity: 1, height: "auto" }}
-              exit={{ opacity: 0, height: 0 }}
-              className="mb-6 glass-card rounded-2xl p-4 space-y-4"
-            >
-              <div className="grid grid-cols-2 gap-4">
-                <div>
-                  <label className="text-sm text-muted-foreground mb-1 block">Kota</label>
-                  <Input
-                    placeholder="Semua kota"
-                    value={filters.city}
-                    onChange={(e) => setFilters(prev => ({ ...prev, city: e.target.value }))}
-                    className="rounded-xl"
-                  />
-                </div>
-                <div>
-                  <label className="text-sm text-muted-foreground mb-1 block">Gender</label>
-                  <select
-                    value={filters.gender}
-                    onChange={(e) => setFilters(prev => ({ ...prev, gender: e.target.value }))}
-                    className="w-full h-10 px-3 rounded-xl bg-background border border-input text-foreground"
-                  >
-                    <option value="all">Semua</option>
-                    <option value="male">Laki-laki</option>
-                    <option value="female">Perempuan</option>
-                  </select>
-                </div>
-              </div>
-              
-              <div className="flex items-center gap-4">
-                <div className="flex-1">
-                  <label className="text-sm text-muted-foreground mb-1 block">
-                    Usia: {filters.minAge} - {filters.maxAge} tahun
-                  </label>
-                  <div className="flex gap-2">
-                    <Input
-                      type="number"
-                      value={filters.minAge}
-                      onChange={(e) => setFilters(prev => ({ ...prev, minAge: parseInt(e.target.value) || 18 }))}
-                      className="rounded-xl"
-                      min={18}
-                    />
-                    <Input
-                      type="number"
-                      value={filters.maxAge}
-                      onChange={(e) => setFilters(prev => ({ ...prev, maxAge: parseInt(e.target.value) || 100 }))}
-                      className="rounded-xl"
-                    />
-                  </div>
-                </div>
-              </div>
-
-              <div className="flex items-center gap-2">
-                <input
-                  type="checkbox"
-                  id="onlineOnly"
-                  checked={filters.onlineOnly}
-                  onChange={(e) => setFilters(prev => ({ ...prev, onlineOnly: e.target.checked }))}
-                  className="rounded"
-                />
-                <label htmlFor="onlineOnly" className="text-sm">Online sekarang</label>
-              </div>
-            </motion.div>
-          )}
-        </AnimatePresence>
 
         {/* Results */}
         <div className="space-y-3">
@@ -283,67 +197,92 @@ export default function FindFriends() {
           ) : results.length === 0 ? (
             <div className="text-center py-12">
               <User className="w-12 h-12 mx-auto text-muted-foreground mb-4" />
-              <p className="text-muted-foreground">Belum ada hasil pencarian</p>
+              <p className="text-muted-foreground">Belum ada rekomendasi</p>
+              <p className="text-sm text-muted-foreground mt-2">
+                Lengkapi profil untuk rekomendasi lebih baik
+              </p>
             </div>
           ) : (
-            results.map((profile, index) => (
-              <motion.div
-                key={profile.id}
-                initial={{ opacity: 0, y: 20 }}
-                animate={{ opacity: 1, y: 0 }}
-                transition={{ delay: index * 0.05 }}
-                className="glass-card rounded-2xl p-4 flex items-center gap-4"
-              >
-                {/* Avatar */}
-                <div className="relative">
-                  <div className="w-16 h-16 rounded-full bg-gradient-to-br from-lavender to-pink p-0.5">
-                    <div className="w-full h-full rounded-full bg-background flex items-center justify-center overflow-hidden">
-                      {profile.avatar_url ? (
-                        <img 
-                          src={profile.avatar_url} 
-                          alt={profile.full_name}
-                          className="w-full h-full object-cover"
-                        />
-                      ) : (
-                        <User className="w-6 h-6 text-muted-foreground" />
+            results.map((targetProfile, index) => {
+              const sharedInfo = getSharedInfo(targetProfile);
+              
+              return (
+                <motion.div
+                  key={targetProfile.id}
+                  initial={{ opacity: 0, y: 20 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  transition={{ delay: index * 0.05 }}
+                  className="glass-card rounded-2xl p-4"
+                >
+                  <div className="flex items-center gap-4">
+                    {/* Avatar */}
+                    <div className="relative">
+                      <div className="w-16 h-16 rounded-full bg-gradient-to-br from-lavender to-pink p-0.5">
+                        <div className="w-full h-full rounded-full bg-background flex items-center justify-center overflow-hidden">
+                          {targetProfile.avatar_url ? (
+                            <img 
+                              src={targetProfile.avatar_url} 
+                              alt={targetProfile.full_name}
+                              className="w-full h-full object-cover"
+                            />
+                          ) : (
+                            <User className="w-6 h-6 text-muted-foreground" />
+                          )}
+                        </div>
+                      </div>
+                      {targetProfile.is_online && (
+                        <div className="absolute bottom-0 right-0 w-4 h-4 bg-mint rounded-full border-2 border-background" />
                       )}
                     </div>
+
+                    {/* Info */}
+                    <div className="flex-1 min-w-0">
+                      <div className="flex items-center gap-2 mb-1">
+                        <h3 className="font-semibold text-foreground truncate">
+                          {targetProfile.full_name}
+                        </h3>
+                        {targetProfile.is_verified && (
+                          <Badge className="bg-mint/20 text-mint text-xs px-2">✓</Badge>
+                        )}
+                      </div>
+                      <p className="text-sm text-muted-foreground truncate">
+                        @{targetProfile.username}
+                      </p>
+                      <div className="flex items-center gap-3 mt-1 text-xs text-muted-foreground">
+                        {targetProfile.date_of_birth && (
+                          <span>{calculateAge(targetProfile.date_of_birth)} tahun</span>
+                        )}
+                        {targetProfile.city && (
+                          <span className="flex items-center gap-1">
+                            <MapPin className="w-3 h-3" />
+                            {targetProfile.city}
+                          </span>
+                        )}
+                      </div>
+                    </div>
+
+                    {/* Action */}
+                    <FriendButton profile={targetProfile} />
                   </div>
-                  {profile.is_online && (
-                    <div className="absolute bottom-0 right-0 w-4 h-4 bg-mint rounded-full border-2 border-background" />
+                  
+                  {/* Shared Info */}
+                  {sharedInfo.length > 0 && (
+                    <div className="mt-3 pt-3 border-t border-border/50">
+                      <div className="flex flex-wrap gap-2">
+                        {sharedInfo.map((info, i) => (
+                          <span 
+                            key={i}
+                            className="text-xs bg-primary/10 text-primary px-2 py-1 rounded-full"
+                          >
+                            {info}
+                          </span>
+                        ))}
+                      </div>
+                    </div>
                   )}
-                </div>
-
-                {/* Info */}
-                <div className="flex-1 min-w-0">
-                  <div className="flex items-center gap-2 mb-1">
-                    <h3 className="font-semibold text-foreground truncate">
-                      {profile.full_name}
-                    </h3>
-                    {profile.is_verified && (
-                      <Badge className="bg-mint/20 text-mint text-xs px-2">✓</Badge>
-                    )}
-                  </div>
-                  <p className="text-sm text-muted-foreground truncate">
-                    @{profile.username}
-                  </p>
-                  <div className="flex items-center gap-3 mt-1 text-xs text-muted-foreground">
-                    {profile.date_of_birth && (
-                      <span>{calculateAge(profile.date_of_birth)} tahun</span>
-                    )}
-                    {profile.city && (
-                      <span className="flex items-center gap-1">
-                        <MapPin className="w-3 h-3" />
-                        {profile.city}
-                      </span>
-                    )}
-                  </div>
-                </div>
-
-                {/* Action */}
-                <FriendButton profile={profile} />
-              </motion.div>
-            ))
+                </motion.div>
+              );
+            })
           )}
         </div>
       </div>
