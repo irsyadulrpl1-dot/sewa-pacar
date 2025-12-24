@@ -6,32 +6,60 @@ import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { BrowserRouter, Routes, Route } from "react-router-dom";
 import { AuthProvider } from "@/contexts/AuthContext";
 import { ErrorBoundary } from "@/components/ui/error-boundary";
-import { PageLoader } from "@/components/ui/loading-states";
+import { BlurSkeleton } from "@/components/ui/blur-skeleton";
+import { LazyPageWrapper } from "@/components/ui/page-transition";
 
-// Lazy load pages for better performance
-const Index = lazy(() => import("./pages/Index"));
-const Companions = lazy(() => import("./pages/Companions"));
-const CompanionProfile = lazy(() => import("./pages/CompanionProfile"));
-const CompanionChat = lazy(() => import("./pages/CompanionChat"));
-const Rules = lazy(() => import("./pages/Rules"));
-const Contact = lazy(() => import("./pages/Contact"));
-const Auth = lazy(() => import("./pages/Auth"));
-const Profile = lazy(() => import("./pages/Profile"));
-const FindFriends = lazy(() => import("./pages/FindFriends"));
-const Friends = lazy(() => import("./pages/Friends"));
-const Messages = lazy(() => import("./pages/Messages"));
-const Chat = lazy(() => import("./pages/Chat"));
-const Settings = lazy(() => import("./pages/Settings"));
-const NotFound = lazy(() => import("./pages/NotFound"));
+// Lazy load pages with wrapper for blur transition
+const Index = lazy(() => import("./pages/Index").then(module => ({ 
+  default: () => <LazyPageWrapper><module.default /></LazyPageWrapper> 
+})));
+const Companions = lazy(() => import("./pages/Companions").then(module => ({ 
+  default: () => <LazyPageWrapper><module.default /></LazyPageWrapper> 
+})));
+const CompanionProfile = lazy(() => import("./pages/CompanionProfile").then(module => ({ 
+  default: () => <LazyPageWrapper><module.default /></LazyPageWrapper> 
+})));
+const CompanionChat = lazy(() => import("./pages/CompanionChat").then(module => ({ 
+  default: () => <LazyPageWrapper><module.default /></LazyPageWrapper> 
+})));
+const Rules = lazy(() => import("./pages/Rules").then(module => ({ 
+  default: () => <LazyPageWrapper><module.default /></LazyPageWrapper> 
+})));
+const Contact = lazy(() => import("./pages/Contact").then(module => ({ 
+  default: () => <LazyPageWrapper><module.default /></LazyPageWrapper> 
+})));
+const Auth = lazy(() => import("./pages/Auth").then(module => ({ 
+  default: () => <LazyPageWrapper><module.default /></LazyPageWrapper> 
+})));
+const Profile = lazy(() => import("./pages/Profile").then(module => ({ 
+  default: () => <LazyPageWrapper><module.default /></LazyPageWrapper> 
+})));
+const FindFriends = lazy(() => import("./pages/FindFriends").then(module => ({ 
+  default: () => <LazyPageWrapper><module.default /></LazyPageWrapper> 
+})));
+const Friends = lazy(() => import("./pages/Friends").then(module => ({ 
+  default: () => <LazyPageWrapper><module.default /></LazyPageWrapper> 
+})));
+const Messages = lazy(() => import("./pages/Messages").then(module => ({ 
+  default: () => <LazyPageWrapper><module.default /></LazyPageWrapper> 
+})));
+const Chat = lazy(() => import("./pages/Chat").then(module => ({ 
+  default: () => <LazyPageWrapper><module.default /></LazyPageWrapper> 
+})));
+const Settings = lazy(() => import("./pages/Settings").then(module => ({ 
+  default: () => <LazyPageWrapper><module.default /></LazyPageWrapper> 
+})));
+const NotFound = lazy(() => import("./pages/NotFound").then(module => ({ 
+  default: () => <LazyPageWrapper><module.default /></LazyPageWrapper> 
+})));
 
 // Configure QueryClient with better defaults for error handling and caching
 const queryClient = new QueryClient({
   defaultOptions: {
     queries: {
       staleTime: 5 * 60 * 1000, // 5 minutes
-      gcTime: 10 * 60 * 1000, // 10 minutes (previously cacheTime)
+      gcTime: 10 * 60 * 1000, // 10 minutes
       retry: (failureCount, error) => {
-        // Don't retry on 4xx errors
         if (error instanceof Error && error.message.includes("4")) {
           return false;
         }
@@ -45,6 +73,11 @@ const queryClient = new QueryClient({
   },
 });
 
+// Blur skeleton fallback for lazy loading
+function LazyFallback() {
+  return <BlurSkeleton variant="feed" className="min-h-screen" />;
+}
+
 const App = () => (
   <ErrorBoundary>
     <QueryClientProvider client={queryClient}>
@@ -53,7 +86,7 @@ const App = () => (
           <Toaster />
           <Sonner position="top-center" richColors closeButton />
           <BrowserRouter>
-            <Suspense fallback={<PageLoader />}>
+            <Suspense fallback={<LazyFallback />}>
               <Routes>
                 <Route path="/" element={<Index />} />
                 <Route path="/companions" element={<Companions />} />
