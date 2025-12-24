@@ -1,10 +1,9 @@
 import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { motion } from "framer-motion";
-import { Camera, Edit2, MapPin, Calendar, User, Save, X, LogOut, Sparkles, Plus } from "lucide-react";
+import { Camera, Edit2, MapPin, Calendar, User, Save, X, Sparkles, Plus } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { Badge } from "@/components/ui/badge";
 import { MobileLayout } from "@/components/MobileLayout";
@@ -13,9 +12,10 @@ import { useProfile } from "@/hooks/useProfile";
 import { useToast } from "@/hooks/use-toast";
 import { CreatePostDialog } from "@/components/posts/CreatePostDialog";
 import { UserPostsGrid } from "@/components/posts/UserPostsGrid";
+import { AccountSettingsMenu } from "@/components/AccountSettingsMenu";
 
 export default function Profile() {
-  const { user, signOut } = useAuth();
+  const { user } = useAuth();
   const { profile, loading, updateProfile } = useProfile();
   const navigate = useNavigate();
   const { toast } = useToast();
@@ -91,15 +91,6 @@ export default function Profile() {
     setSaving(false);
   };
 
-  const handleLogout = async () => {
-    await signOut();
-    navigate("/");
-    toast({
-      title: "Sampai jumpa! 👋",
-      description: "Kamu sudah keluar dari akun",
-    });
-  };
-
   const calculateAge = (birthDate: string) => {
     const today = new Date();
     const birth = new Date(birthDate);
@@ -126,6 +117,15 @@ export default function Profile() {
   return (
     <MobileLayout showFooter={false}>
       <div className="px-4 py-6 pb-24 md:py-24 max-w-2xl mx-auto">
+        {/* Settings Icon - Top Right */}
+        <div className="flex justify-end mb-2">
+          <AccountSettingsMenu
+            avatarUrl={profile.avatar_url}
+            fullName={profile.full_name}
+            username={profile.username}
+          />
+        </div>
+
         {/* Profile Header */}
         <motion.div
           initial={{ opacity: 0, y: 20 }}
@@ -331,23 +331,6 @@ export default function Profile() {
           transition={{ delay: 0.1 }}
         >
           <UserPostsGrid />
-        </motion.div>
-
-        {/* Account Actions */}
-        <motion.div
-          initial={{ opacity: 0, y: 20 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ delay: 0.15 }}
-          className="mt-6"
-        >
-          <Button
-            variant="outline"
-            onClick={handleLogout}
-            className="w-full rounded-xl border-destructive/30 text-destructive hover:bg-destructive/10"
-          >
-            <LogOut className="w-4 h-4 mr-2" />
-            Keluar
-          </Button>
         </motion.div>
       </div>
     </MobileLayout>
