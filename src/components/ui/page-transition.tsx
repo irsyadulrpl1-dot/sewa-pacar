@@ -87,25 +87,18 @@ export function LazyPageWrapper({ children }: LazyPageWrapperProps) {
   const [isReady, setIsReady] = useState(false);
 
   useEffect(() => {
-    // Small delay to ensure content is painted before removing blur
-    const timer = requestAnimationFrame(() => {
-      setIsReady(true);
-    });
+    // Wait one frame so the page can paint, then fade in.
+    const timer = requestAnimationFrame(() => setIsReady(true));
     return () => cancelAnimationFrame(timer);
   }, []);
 
+  // IMPORTANT: Do NOT use transform/filter on the wrapper.
+  // Those properties break `position: fixed` descendants (navbar/bottom nav) on some browsers.
   return (
     <motion.div
-      initial={{ opacity: 0.5, filter: "blur(12px)", scale: 0.98 }}
-      animate={{ 
-        opacity: isReady ? 1 : 0.5, 
-        filter: isReady ? "blur(0px)" : "blur(12px)",
-        scale: isReady ? 1 : 0.98
-      }}
-      transition={{ 
-        duration: 0.5, 
-        ease: [0.25, 0.46, 0.45, 0.94]
-      }}
+      initial={{ opacity: 0.6 }}
+      animate={{ opacity: isReady ? 1 : 0.6 }}
+      transition={{ duration: 0.35, ease: [0.25, 0.46, 0.45, 0.94] }}
     >
       {children}
     </motion.div>
