@@ -1,7 +1,7 @@
 import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { motion } from "framer-motion";
-import { Camera, Edit2, MapPin, Calendar, User, Save, X, LogOut, Sparkles } from "lucide-react";
+import { Camera, Edit2, MapPin, Calendar, User, Save, X, LogOut, Sparkles, Plus } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -11,6 +11,8 @@ import { MobileLayout } from "@/components/MobileLayout";
 import { useAuth } from "@/contexts/AuthContext";
 import { useProfile } from "@/hooks/useProfile";
 import { useToast } from "@/hooks/use-toast";
+import { CreatePostDialog } from "@/components/posts/CreatePostDialog";
+import { UserPostsGrid } from "@/components/posts/UserPostsGrid";
 
 export default function Profile() {
   const { user, signOut } = useAuth();
@@ -201,7 +203,7 @@ export default function Profile() {
           )}
         </motion.div>
 
-        {/* Edit/Save Buttons */}
+        {/* Action Buttons */}
         <div className="flex gap-3 justify-center mb-6">
           {isEditing ? (
             <>
@@ -224,14 +226,22 @@ export default function Profile() {
               </Button>
             </>
           ) : (
-            <Button
-              variant="soft"
-              onClick={() => setIsEditing(true)}
-              className="rounded-xl"
-            >
-              <Edit2 className="w-4 h-4 mr-2" />
-              Edit Profil
-            </Button>
+            <>
+              <Button
+                variant="soft"
+                onClick={() => setIsEditing(true)}
+                className="rounded-xl"
+              >
+                <Edit2 className="w-4 h-4 mr-2" />
+                Edit Profil
+              </Button>
+              <CreatePostDialog>
+                <Button variant="gradient" className="rounded-xl">
+                  <Plus className="w-4 h-4 mr-2" />
+                  Buat Post
+                </Button>
+              </CreatePostDialog>
+            </>
           )}
         </div>
 
@@ -323,6 +333,16 @@ export default function Profile() {
               </div>
             )}
           </div>
+        </motion.div>
+
+        {/* User Posts Grid */}
+        <motion.div
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ delay: 0.15 }}
+          className="mt-6"
+        >
+          <UserPostsGrid />
         </motion.div>
 
         {/* Account Actions */}
