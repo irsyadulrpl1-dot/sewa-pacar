@@ -13,12 +13,17 @@ import { PaymentInstructions } from "./PaymentInstructions";
 import { PaymentProofUpload } from "./PaymentProofUpload";
 import { usePayments, type PaymentMethod, type Payment } from "@/hooks/usePayments";
 import { ArrowLeft, Loader2, CheckCircle2 } from "lucide-react";
-import type { Companion } from "@/data/companions";
+interface CompanionInfo {
+  id: string;
+  name: string;
+  image: string;
+  city?: string;
+}
 
 interface BookingPaymentDialogProps {
   open: boolean;
   onOpenChange: (open: boolean) => void;
-  companion: Companion;
+  companion: CompanionInfo;
   selectedPackage: {
     name: string;
     duration: string;
