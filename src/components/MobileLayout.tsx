@@ -12,36 +12,36 @@ interface MobileLayoutProps {
 
 export function MobileLayout({ children, showFooter = true }: MobileLayoutProps) {
   return (
-    <div className="min-h-screen bg-background flex flex-col">
-      {/* Desktop Navbar */}
+    <div className="min-h-screen bg-background">
+      {/* Desktop Navbar - Fixed */}
       <Navbar />
       
-      {/* Mobile Header - always visible on scroll */}
-      <header className="fixed top-0 left-0 right-0 z-50 md:hidden">
-        <div className="flex items-center justify-center h-14 bg-background/95 backdrop-blur-md border-b border-border shadow-sm">
+      {/* Mobile Header - Fixed, always visible */}
+      <header className="fixed top-0 left-0 right-0 z-[100] md:hidden">
+        <div className="flex items-center justify-center h-14 bg-background border-b border-border">
           <span className="text-lg font-display font-bold text-gradient">
             RentBae
           </span>
         </div>
       </header>
       
-      {/* Main Content - pt-14 for mobile header, md:pt-24 for desktop floating navbar */}
-      <main className="flex-1 pt-14 md:pt-24 pb-24 md:pb-0">
+      {/* Main Content Area - Scrollable between fixed header and bottom nav */}
+      <main className="min-h-screen pt-14 pb-20 md:pt-24 md:pb-0">
         <ErrorBoundary>
           <Suspense fallback={<PageLoader />}>
             {children}
           </Suspense>
         </ErrorBoundary>
+        
+        {/* Desktop Footer */}
+        {showFooter && (
+          <div className="hidden md:block">
+            <Footer />
+          </div>
+        )}
       </main>
       
-      {/* Desktop Footer */}
-      {showFooter && (
-        <div className="hidden md:block mt-auto">
-          <Footer />
-        </div>
-      )}
-      
-      {/* Mobile Bottom Nav */}
+      {/* Mobile Bottom Nav - Fixed, always visible */}
       <BottomNav />
     </div>
   );
