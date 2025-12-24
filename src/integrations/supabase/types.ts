@@ -248,12 +248,42 @@ export type Database = {
           },
         ]
       }
+      post_views: {
+        Row: {
+          created_at: string
+          id: string
+          post_id: string
+          user_id: string
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          post_id: string
+          user_id: string
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          post_id?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "post_views_post_id_fkey"
+            columns: ["post_id"]
+            isOneToOne: false
+            referencedRelation: "posts"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       posts: {
         Row: {
           caption: string | null
           created_at: string
           id: string
           image_url: string
+          tags: string[] | null
           updated_at: string
           user_id: string
         }
@@ -262,6 +292,7 @@ export type Database = {
           created_at?: string
           id?: string
           image_url: string
+          tags?: string[] | null
           updated_at?: string
           user_id: string
         }
@@ -270,6 +301,7 @@ export type Database = {
           created_at?: string
           id?: string
           image_url?: string
+          tags?: string[] | null
           updated_at?: string
           user_id?: string
         }
@@ -388,6 +420,56 @@ export type Database = {
           },
         ]
       }
+      saved_posts: {
+        Row: {
+          created_at: string
+          id: string
+          post_id: string
+          user_id: string
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          post_id: string
+          user_id: string
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          post_id?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "saved_posts_post_id_fkey"
+            columns: ["post_id"]
+            isOneToOne: false
+            referencedRelation: "posts"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      search_history: {
+        Row: {
+          created_at: string
+          id: string
+          search_query: string
+          user_id: string
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          search_query: string
+          user_id: string
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          search_query?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
       user_roles: {
         Row: {
           id: string
@@ -411,6 +493,36 @@ export type Database = {
       [_ in never]: never
     }
     Functions: {
+      get_explore_posts: {
+        Args: {
+          current_user_id: string
+          filter_type?: string
+          page_limit?: number
+          page_offset?: number
+          user_city?: string
+          user_interests?: string[]
+        }
+        Returns: {
+          author_avatar_url: string
+          author_bio: string
+          author_city: string
+          author_full_name: string
+          author_is_verified: boolean
+          author_username: string
+          caption: string
+          comment_count: number
+          created_at: string
+          id: string
+          image_url: string
+          is_liked: boolean
+          is_saved: boolean
+          like_count: number
+          score: number
+          tags: string[]
+          user_id: string
+          view_count: number
+        }[]
+      }
       get_friend_profile: {
         Args: { friend_user_id: string }
         Returns: {
