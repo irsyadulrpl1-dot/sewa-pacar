@@ -127,8 +127,8 @@ export function BookingPaymentDialog({
 
   return (
     <Dialog open={open} onOpenChange={handleClose}>
-      <DialogContent className="max-w-md max-h-[90vh] overflow-y-auto">
-        <DialogHeader>
+      <DialogContent className="max-w-md h-[85vh] flex flex-col p-0 gap-0 rounded-t-2xl sm:rounded-2xl">
+        <DialogHeader className="p-4 pb-2 border-b border-border shrink-0">
           <div className="flex items-center gap-3">
             {(step === "instructions" || step === "upload") && (
               <button
@@ -147,7 +147,8 @@ export function BookingPaymentDialog({
           </div>
         </DialogHeader>
 
-        <AnimatePresence mode="wait">
+        <div className="flex-1 overflow-y-auto p-4">
+          <AnimatePresence mode="wait">
           {step === "method" && (
             <motion.div
               key="method"
@@ -283,6 +284,7 @@ export function BookingPaymentDialog({
             </motion.div>
           )}
         </AnimatePresence>
+        </div>
       </DialogContent>
     </Dialog>
   );
