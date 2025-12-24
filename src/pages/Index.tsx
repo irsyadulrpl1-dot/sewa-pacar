@@ -61,20 +61,22 @@ const Index = () => {
 
           {/* Feed Content */}
           <TabsContent value="feed" className="mt-0">
-            <div className="container mx-auto px-4 py-6 max-w-lg">
+            <div className="container mx-auto px-4 py-6 max-w-6xl">
               {/* Create Post Button */}
               {user && (
-                <CreatePostDialog>
-                  <Button variant="outline" className="w-full mb-6 rounded-xl justify-start gap-3 h-14 px-4">
-                    <div className="w-10 h-10 rounded-full bg-gradient-to-br from-lavender to-pink flex items-center justify-center">
-                      <Plus className="w-5 h-5 text-primary-foreground" />
-                    </div>
-                    <span className="text-muted-foreground">Buat postingan baru...</span>
-                  </Button>
-                </CreatePostDialog>
+                <div className="max-w-lg mx-auto md:max-w-none md:mx-0 mb-6">
+                  <CreatePostDialog>
+                    <Button variant="outline" className="w-full md:w-auto rounded-xl justify-start gap-3 h-14 px-4">
+                      <div className="w-10 h-10 rounded-full bg-gradient-to-br from-lavender to-pink flex items-center justify-center">
+                        <Plus className="w-5 h-5 text-primary-foreground" />
+                      </div>
+                      <span className="text-muted-foreground">Buat postingan baru...</span>
+                    </Button>
+                  </CreatePostDialog>
+                </div>
               )}
 
-              {/* Post Feed */}
+              {/* Post Feed - Grid for desktop */}
               <PostFeed />
             </div>
           </TabsContent>
@@ -82,7 +84,7 @@ const Index = () => {
           {/* Explore Content - Posts with Companion Profiles */}
           <TabsContent value="explore" className="mt-0">
             {user ? (
-              <div className="container mx-auto px-4 py-6 max-w-lg">
+              <div className="container mx-auto px-4 py-6 max-w-6xl">
                 <ExploreFeed />
               </div>
             ) : (
