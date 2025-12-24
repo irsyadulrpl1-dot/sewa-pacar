@@ -23,6 +23,81 @@ export function usePosts() {
   const { user } = useAuth();
   const queryClient = useQueryClient();
 
+  // Feed posts - posts from users the current user follows + own posts
+  const { data: feedPosts, isLoading: isLoadingFeed } = useQuery({
+    queryKey: ["feed-posts", user?.id],
+    queryFn: async () => {
+      if (!user) return [];
+
+      // Get list of users the current user follows
+      const { data: followingData, error: followingError } = await supabase
+        .from("follows")
+        .select("following_id")
+        .eq("follower_id", user.id);
+
+      if (followingError) throw followingError;
+
+      const followingIds = followingData.map(f => f.following_id);
+      // Include own posts + posts from followed users
+      const userIds = [user.id, ...followingIds];
+
+      if (userIds.length === 0) return [];
+
+      const { data: postsData, error } = await supabase
+        .from("posts")
+        .select(`
+          id,
+          user_id,
+          image_url,
+          caption,
+          created_at
+        `)
+        .in("user_id", userIds)
+        .order("created_at", { ascending: false });
+
+      if (error) throw error;
+
+      // Get profiles, likes count, and comments count for each post
+      const postsWithDetails = await Promise.all(
+        postsData.map(async (post) => {
+          const [profileRes, likesRes, commentsRes, userLikeRes] = await Promise.all([
+            supabase
+              .from("profiles")
+              .select("full_name, username, avatar_url")
+              .eq("user_id", post.user_id)
+              .single(),
+            supabase
+              .from("post_likes")
+              .select("id", { count: "exact" })
+              .eq("post_id", post.id),
+            supabase
+              .from("post_comments")
+              .select("id", { count: "exact" })
+              .eq("post_id", post.id),
+            supabase
+              .from("post_likes")
+              .select("id")
+              .eq("post_id", post.id)
+              .eq("user_id", user.id)
+              .maybeSingle(),
+          ]);
+
+          return {
+            ...post,
+            profile: profileRes.data || { full_name: "Unknown", username: "unknown", avatar_url: null },
+            likes_count: likesRes.count || 0,
+            comments_count: commentsRes.count || 0,
+            is_liked: !!userLikeRes.data,
+          };
+        })
+      );
+
+      return postsWithDetails as Post[];
+    },
+    enabled: !!user,
+  });
+
+  // All posts (for explore/non-logged in users)
   const { data: posts, isLoading } = useQuery({
     queryKey: ["posts"],
     queryFn: async () => {
@@ -129,6 +204,7 @@ export function usePosts() {
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["posts"] });
       queryClient.invalidateQueries({ queryKey: ["user-posts"] });
+      queryClient.invalidateQueries({ queryKey: ["feed-posts"] });
       toast.success("Post berhasil dibuat!");
     },
     onError: (error) => {
@@ -154,6 +230,7 @@ export function usePosts() {
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["posts"] });
+      queryClient.invalidateQueries({ queryKey: ["feed-posts"] });
     },
   });
 
@@ -169,6 +246,7 @@ export function usePosts() {
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["posts"] });
       queryClient.invalidateQueries({ queryKey: ["user-posts"] });
+      queryClient.invalidateQueries({ queryKey: ["feed-posts"] });
       toast.success("Post berhasil dihapus!");
     },
   });
@@ -176,6 +254,8 @@ export function usePosts() {
   return {
     posts,
     isLoading,
+    feedPosts,
+    isLoadingFeed,
     userPosts,
     isLoadingUserPosts,
     createPost,
