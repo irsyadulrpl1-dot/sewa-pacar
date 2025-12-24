@@ -1,3 +1,4 @@
+import { useState } from "react";
 import { motion } from "framer-motion";
 import { useParams, Link, useNavigate } from "react-router-dom";
 import { MobileLayout } from "@/components/MobileLayout";
@@ -11,15 +12,24 @@ import {
   Heart,
   ChevronLeft,
   Check,
+  CreditCard,
 } from "lucide-react";
 import { useAuth } from "@/contexts/AuthContext";
 import { toast } from "sonner";
 import { Badge } from "@/components/ui/badge";
+import { BookingPaymentDialog } from "@/components/payments/BookingPaymentDialog";
+import type { Payment } from "@/hooks/usePayments";
 
 const CompanionProfile = () => {
   const { id } = useParams();
   const { user } = useAuth();
   const navigate = useNavigate();
+  const [showPaymentDialog, setShowPaymentDialog] = useState(false);
+  const [selectedPackage, setSelectedPackage] = useState<{
+    name: string;
+    duration: string;
+    price: number;
+  } | null>(null);
   const companion = companions.find((c) => c.id === id);
 
   const formatPrice = (price: number) => {
@@ -56,6 +66,20 @@ const CompanionProfile = () => {
     }
     // Navigate to companion chat page
     navigate(`/companion-chat/${companion.id}`);
+  };
+
+  const handleBookPackage = (pkg: { name: string; duration: string; price: number }) => {
+    if (!user) {
+      toast.info("Silakan login terlebih dahulu untuk booking");
+      navigate("/auth");
+      return;
+    }
+    setSelectedPackage(pkg);
+    setShowPaymentDialog(true);
+  };
+
+  const handlePaymentSuccess = (payment: Payment) => {
+    toast.success("Booking berhasil! Menunggu konfirmasi admin.");
   };
 
   return (
@@ -183,7 +207,17 @@ const CompanionProfile = () => {
                         <p className="font-semibold text-foreground text-sm md:text-base">{pkg.name}</p>
                         <p className="text-xs md:text-sm text-muted-foreground">{pkg.duration}</p>
                       </div>
-                      <p className="text-lg md:text-xl font-semibold text-primary">{formatPrice(pkg.price)}</p>
+                      <div className="flex items-center gap-2">
+                        <p className="text-lg md:text-xl font-semibold text-primary">{formatPrice(pkg.price)}</p>
+                        <Button
+                          size="sm"
+                          variant="gradient"
+                          onClick={() => handleBookPackage(pkg)}
+                        >
+                          <CreditCard className="w-4 h-4 mr-1" />
+                          Booking
+                        </Button>
+                      </div>
                     </div>
                   ))}
                 </div>
@@ -219,6 +253,17 @@ const CompanionProfile = () => {
           </div>
         </div>
       </main>
+
+      {/* Payment Dialog */}
+      {selectedPackage && (
+        <BookingPaymentDialog
+          open={showPaymentDialog}
+          onOpenChange={setShowPaymentDialog}
+          companion={companion}
+          selectedPackage={selectedPackage}
+          onSuccess={handlePaymentSuccess}
+        />
+      )}
     </MobileLayout>
   );
 };
