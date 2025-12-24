@@ -23,8 +23,8 @@ export function MobileLayout({ children, showFooter = true }: MobileLayoutProps)
         </div>
       </header>
       
-      {/* Main Content */}
-      <main className="pt-14 md:pt-0 pb-24 md:pb-0">
+      {/* Main Content - pt-14 for mobile header, md:pt-24 for desktop floating navbar */}
+      <main className="pt-14 md:pt-24 pb-24 md:pb-0">
         {children}
       </main>
       
