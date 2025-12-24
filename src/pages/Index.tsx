@@ -46,14 +46,20 @@ const Index = () => {
   return (
     <MobileLayout>
       {/* Tabs for Feed vs Explore */}
-      <div className="sticky top-16 z-40 bg-background/95 backdrop-blur-md border-b border-border">
+      <div className="sticky top-16 z-40 bg-background/95 backdrop-blur-md border-b border-border/50">
         <Tabs defaultValue="feed" className="w-full">
-          <TabsList className="w-full justify-center bg-transparent h-12">
-            <TabsTrigger value="feed" className="flex-1 gap-1.5 data-[state=active]:bg-transparent data-[state=active]:border-b-2 data-[state=active]:border-primary rounded-none">
+          <TabsList className="w-full max-w-md mx-auto justify-center bg-transparent h-14 gap-0 p-0 rounded-none">
+            <TabsTrigger 
+              value="feed" 
+              className="relative flex-1 gap-2 h-full bg-transparent border-0 rounded-none text-muted-foreground data-[state=active]:text-primary data-[state=active]:bg-transparent data-[state=active]:shadow-none font-medium transition-colors hover:text-foreground after:absolute after:bottom-0 after:left-1/2 after:-translate-x-1/2 after:w-20 after:h-0.5 after:bg-primary after:rounded-full after:scale-x-0 data-[state=active]:after:scale-x-100 after:transition-transform after:duration-300"
+            >
               <Heart className="h-4 w-4" />
               Feed
             </TabsTrigger>
-            <TabsTrigger value="explore" className="flex-1 gap-1.5 data-[state=active]:bg-transparent data-[state=active]:border-b-2 data-[state=active]:border-primary rounded-none">
+            <TabsTrigger 
+              value="explore" 
+              className="relative flex-1 gap-2 h-full bg-transparent border-0 rounded-none text-muted-foreground data-[state=active]:text-primary data-[state=active]:bg-transparent data-[state=active]:shadow-none font-medium transition-colors hover:text-foreground after:absolute after:bottom-0 after:left-1/2 after:-translate-x-1/2 after:w-20 after:h-0.5 after:bg-primary after:rounded-full after:scale-x-0 data-[state=active]:after:scale-x-100 after:transition-transform after:duration-300"
+            >
               <Compass className="h-4 w-4" />
               Jelajahi
             </TabsTrigger>
