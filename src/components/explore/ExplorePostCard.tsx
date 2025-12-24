@@ -1,5 +1,5 @@
 import { useState, useEffect, useRef } from "react";
-import { Heart, MessageCircle, Bookmark, MapPin, Clock, Star, BadgeCheck } from "lucide-react";
+import { Heart, MessageCircle, Bookmark, MapPin, Clock, Star, BadgeCheck, UserPlus, UserCheck } from "lucide-react";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
@@ -11,6 +11,7 @@ import { motion } from "framer-motion";
 import { useNavigate } from "react-router-dom";
 import { useToast } from "@/hooks/use-toast";
 import { useAuth } from "@/contexts/AuthContext";
+import { useFollows } from "@/hooks/useFollows";
 
 interface ExplorePostCardProps {
   post: ExplorePost;
@@ -36,13 +37,20 @@ export function ExplorePostCard({ post, onLike, onSave, onView }: ExplorePostCar
   const navigate = useNavigate();
   const { toast } = useToast();
   const { user } = useAuth();
+  const { isFollowing, followUser, unfollowUser } = useFollows();
   const [isLiked, setIsLiked] = useState(post.is_liked);
   const [isSaved, setIsSaved] = useState(post.is_saved);
   const [likeCount, setLikeCount] = useState(Number(post.like_count));
   const cardRef = useRef<HTMLDivElement>(null);
   const hasTrackedView = useRef(false);
+  const [localFollowing, setLocalFollowing] = useState(false);
 
   const companionInfo = getMockCompanionInfo(post.author_username);
+
+  // Sync local following state with hook
+  useEffect(() => {
+    setLocalFollowing(isFollowing(post.user_id));
+  }, [isFollowing, post.user_id]);
 
   const formatPrice = (price: number) => {
     return new Intl.NumberFormat("id-ID", {
@@ -94,6 +102,21 @@ export function ExplorePostCard({ post, onLike, onSave, onView }: ExplorePostCar
 
   const handleProfileClick = () => {
     navigate(`/user/${post.user_id}`);
+  };
+
+  const handleFollow = async () => {
+    if (!user) {
+      navigate("/auth");
+      return;
+    }
+    
+    setLocalFollowing(!localFollowing);
+    
+    if (localFollowing) {
+      await unfollowUser.mutateAsync(post.user_id);
+    } else {
+      await followUser.mutateAsync(post.user_id);
+    }
   };
 
   return (
@@ -257,11 +280,29 @@ export function ExplorePostCard({ post, onLike, onSave, onView }: ExplorePostCar
           {/* Action Buttons */}
           <div className="flex gap-2 pt-2">
             <Button
+              onClick={handleFollow}
+              variant={localFollowing ? "secondary" : "default"}
+              className={`flex-1 gap-2 ${!localFollowing ? "bg-gradient-to-r from-primary to-primary/80 hover:from-primary/90 hover:to-primary/70" : ""}`}
+            >
+              {localFollowing ? (
+                <>
+                  <UserCheck className="h-4 w-4" />
+                  Following
+                </>
+              ) : (
+                <>
+                  <UserPlus className="h-4 w-4" />
+                  Follow
+                </>
+              )}
+            </Button>
+            <Button
               onClick={handleChatClick}
-              className="flex-1 bg-gradient-to-r from-primary to-primary/80 hover:from-primary/90 hover:to-primary/70 gap-2"
+              variant="outline"
+              className="flex-1 gap-2"
             >
               <MessageCircle className="h-4 w-4" />
-              Chat Sekarang
+              Chat
             </Button>
             <Button
               variant="outline"
