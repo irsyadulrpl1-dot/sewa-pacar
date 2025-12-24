@@ -250,6 +250,96 @@ export type Database = {
           },
         ]
       }
+      payment_config: {
+        Row: {
+          account_name: string
+          account_number: string
+          bank_name: string | null
+          created_at: string
+          id: string
+          is_active: boolean | null
+          method: Database["public"]["Enums"]["payment_method"]
+          qr_code_url: string | null
+          updated_at: string
+        }
+        Insert: {
+          account_name: string
+          account_number: string
+          bank_name?: string | null
+          created_at?: string
+          id?: string
+          is_active?: boolean | null
+          method: Database["public"]["Enums"]["payment_method"]
+          qr_code_url?: string | null
+          updated_at?: string
+        }
+        Update: {
+          account_name?: string
+          account_number?: string
+          bank_name?: string | null
+          created_at?: string
+          id?: string
+          is_active?: boolean | null
+          method?: Database["public"]["Enums"]["payment_method"]
+          qr_code_url?: string | null
+          updated_at?: string
+        }
+        Relationships: []
+      }
+      payments: {
+        Row: {
+          admin_notes: string | null
+          amount: number
+          booking_details: Json | null
+          companion_id: string | null
+          created_at: string
+          expires_at: string | null
+          id: string
+          method: Database["public"]["Enums"]["payment_method"]
+          notes: string | null
+          proof_url: string | null
+          status: Database["public"]["Enums"]["payment_status"]
+          updated_at: string
+          user_id: string
+          validated_at: string | null
+          validated_by: string | null
+        }
+        Insert: {
+          admin_notes?: string | null
+          amount: number
+          booking_details?: Json | null
+          companion_id?: string | null
+          created_at?: string
+          expires_at?: string | null
+          id?: string
+          method: Database["public"]["Enums"]["payment_method"]
+          notes?: string | null
+          proof_url?: string | null
+          status?: Database["public"]["Enums"]["payment_status"]
+          updated_at?: string
+          user_id: string
+          validated_at?: string | null
+          validated_by?: string | null
+        }
+        Update: {
+          admin_notes?: string | null
+          amount?: number
+          booking_details?: Json | null
+          companion_id?: string | null
+          created_at?: string
+          expires_at?: string | null
+          id?: string
+          method?: Database["public"]["Enums"]["payment_method"]
+          notes?: string | null
+          proof_url?: string | null
+          status?: Database["public"]["Enums"]["payment_status"]
+          updated_at?: string
+          user_id?: string
+          validated_at?: string | null
+          validated_by?: string | null
+        }
+        Relationships: []
+      }
       post_comments: {
         Row: {
           content: string
@@ -723,6 +813,20 @@ export type Database = {
       app_role: "user" | "talent" | "admin"
       friend_status: "pending" | "accepted" | "rejected"
       gender_type: "male" | "female" | "other" | "prefer_not_to_say"
+      payment_method:
+        | "cod"
+        | "bank_transfer"
+        | "dana"
+        | "gopay"
+        | "ovo"
+        | "shopeepay"
+      payment_status:
+        | "pending"
+        | "waiting_validation"
+        | "approved"
+        | "rejected"
+        | "cancelled"
+        | "expired"
     }
     CompositeTypes: {
       [_ in never]: never
@@ -853,6 +957,22 @@ export const Constants = {
       app_role: ["user", "talent", "admin"],
       friend_status: ["pending", "accepted", "rejected"],
       gender_type: ["male", "female", "other", "prefer_not_to_say"],
+      payment_method: [
+        "cod",
+        "bank_transfer",
+        "dana",
+        "gopay",
+        "ovo",
+        "shopeepay",
+      ],
+      payment_status: [
+        "pending",
+        "waiting_validation",
+        "approved",
+        "rejected",
+        "cancelled",
+        "expired",
+      ],
     },
   },
 } as const
