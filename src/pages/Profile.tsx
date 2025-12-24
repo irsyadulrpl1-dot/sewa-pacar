@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useCallback } from "react";
 import { useNavigate } from "react-router-dom";
 import { motion } from "framer-motion";
 import { Camera, Edit2, MapPin, Calendar, User, Save, X, Sparkles, Plus, BadgeCheck } from "lucide-react";
@@ -15,6 +15,8 @@ import { UserPostsGrid } from "@/components/posts/UserPostsGrid";
 import { AccountSettingsMenu } from "@/components/AccountSettingsMenu";
 import { useFollowCounts } from "@/hooks/useFollows";
 import { usePosts } from "@/hooks/usePosts";
+import { formatCount, calculateAge } from "@/lib/formatters";
+import { ProfileSkeleton } from "@/components/ui/loading-states";
 
 export default function Profile() {
   const { user } = useAuth();
@@ -23,17 +25,6 @@ export default function Profile() {
   const { toast } = useToast();
   const { followersCount, followingCount } = useFollowCounts(user?.id || "");
   const { userPosts } = usePosts();
-
-  // Format number to K format (e.g., 100000 -> 100K)
-  const formatCount = (count: number) => {
-    if (count >= 1000000) {
-      return (count / 1000000).toFixed(1).replace(/\.0$/, '') + 'M';
-    }
-    if (count >= 1000) {
-      return (count / 1000).toFixed(1).replace(/\.0$/, '') + 'K';
-    }
-    return count.toString();
-  };
   
   const [isEditing, setIsEditing] = useState(false);
   const [saving, setSaving] = useState(false);
