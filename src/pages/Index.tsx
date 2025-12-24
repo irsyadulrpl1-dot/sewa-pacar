@@ -8,6 +8,7 @@ import { companions } from "@/data/companions";
 import { Heart, Users, Shield, Star, ChevronRight, Sparkles, Zap, Coffee, MapPin, Plus, Compass } from "lucide-react";
 import { PostFeed } from "@/components/posts/PostFeed";
 import { CreatePostDialog } from "@/components/posts/CreatePostDialog";
+import { ExploreFeed } from "@/components/explore/ExploreFeed";
 import { CompanionExploreFeed } from "@/components/explore/CompanionExploreFeed";
 import { useAuth } from "@/contexts/AuthContext";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
@@ -81,8 +82,15 @@ const Index = () => {
           {/* Explore Content - Companion Profiles */}
           <TabsContent value="explore" className="mt-0">
             {user ? (
-              <div className="container mx-auto px-4 py-6 max-w-2xl">
-                <CompanionExploreFeed />
+              <div className="container mx-auto px-4 py-6 max-w-2xl space-y-8">
+                {/* Post-style Explore - dari database */}
+                <ExploreFeed />
+                
+                {/* Companion Profiles */}
+                <div className="pt-4 border-t border-border">
+                  <h3 className="text-lg font-bold text-foreground mb-4">Companion Populer</h3>
+                  <CompanionExploreFeed />
+                </div>
               </div>
             ) : (
               <>
