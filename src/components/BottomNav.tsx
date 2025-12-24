@@ -16,24 +16,25 @@ export function BottomNav() {
   const { user } = useAuth();
 
   return (
-    <nav className="fixed bottom-4 left-4 right-4 z-[100] md:hidden">
-      {/* Futuristic glass container */}
+    <nav className="fixed bottom-0 left-0 right-0 z-[100] md:hidden safe-area-bottom">
+      {/* Modern glass container - fixed to bottom */}
       <motion.div 
         initial={{ y: 100, opacity: 0 }}
         animate={{ y: 0, opacity: 1 }}
         transition={{ type: "spring", stiffness: 300, damping: 30 }}
-        className="relative rounded-2xl overflow-hidden"
+        className="relative overflow-hidden"
       >
-        {/* Animated gradient border */}
-        <div className="absolute inset-0 rounded-2xl bg-gradient-to-r from-lavender via-pink to-lavender bg-[length:200%_100%] animate-gradient p-[1px]">
-          <div className="absolute inset-[1px] rounded-2xl bg-background/90 backdrop-blur-xl" />
-        </div>
+        {/* Top gradient border line */}
+        <div className="absolute top-0 left-0 right-0 h-[1px] bg-gradient-to-r from-transparent via-lavender/50 to-transparent" />
         
-        {/* Glow effect */}
-        <div className="absolute inset-0 rounded-2xl bg-gradient-to-r from-lavender/20 via-transparent to-pink/20 blur-xl opacity-50" />
+        {/* Glass background */}
+        <div className="absolute inset-0 bg-background/95 backdrop-blur-xl" />
         
-        <div className="relative flex items-center justify-around px-2 py-3">
-          {navItems.map((item, index) => {
+        {/* Subtle glow effect at top */}
+        <div className="absolute top-0 left-1/4 right-1/4 h-8 bg-gradient-to-b from-lavender/10 to-transparent blur-xl" />
+        
+        <div className="relative flex items-center justify-around px-2 py-2">
+          {navItems.map((item) => {
             const href = item.requiresAuth && !user ? "/auth" : item.href;
             const isActive = location.pathname === item.href || 
               (item.href === "/find-friends" && location.pathname === "/friends");
@@ -45,73 +46,57 @@ export function BottomNav() {
                 className="relative flex flex-col items-center justify-center group"
               >
                 <motion.div
-                  whileTap={{ scale: 0.85 }}
-                  whileHover={{ scale: 1.05 }}
+                  whileTap={{ scale: 0.9 }}
                   className="relative"
                 >
-                  {/* Active background glow */}
+                  {/* Active background pill */}
                   {isActive && (
                     <motion.div
-                      layoutId="nav-glow"
-                      className="absolute inset-0 -m-2 rounded-2xl bg-gradient-to-br from-lavender/30 to-pink/30 blur-md"
+                      layoutId="nav-active-bg"
+                      className="absolute inset-0 -m-1 rounded-xl bg-gradient-to-br from-lavender/20 to-pink/20"
                       transition={{ type: "spring", stiffness: 400, damping: 25 }}
                     />
                   )}
                   
                   {/* Icon container */}
-                  <motion.div 
-                    className={`relative z-10 flex flex-col items-center gap-1 px-4 py-2 rounded-xl transition-all duration-300 ${
+                  <div 
+                    className={`relative z-10 flex flex-col items-center gap-0.5 px-4 py-2 rounded-xl transition-all duration-200 ${
                       isActive 
                         ? "text-foreground" 
-                        : "text-muted-foreground hover:text-foreground/80"
+                        : "text-muted-foreground"
                     }`}
-                    animate={{
-                      y: isActive ? -2 : 0,
-                    }}
-                    transition={{ type: "spring", stiffness: 400, damping: 25 }}
                   >
-                    {/* Icon with gradient on active */}
-                    <div className={`relative ${isActive ? "text-transparent bg-clip-text bg-gradient-to-br from-lavender to-pink" : ""}`}>
+                    {/* Icon */}
+                    <div className="relative">
                       <item.icon 
                         size={22} 
                         strokeWidth={isActive ? 2.5 : 1.8}
-                        className={isActive ? "stroke-[url(#icon-gradient)]" : ""}
-                        style={isActive ? { stroke: "url(#icon-gradient)" } : {}}
+                        className={isActive ? "text-primary" : ""}
                       />
-                      {/* Active dot indicator */}
+                      {/* Active indicator dot */}
                       {isActive && (
                         <motion.div
-                          initial={{ scale: 0 }}
-                          animate={{ scale: 1 }}
-                          className="absolute -bottom-1 left-1/2 -translate-x-1/2 w-1 h-1 rounded-full bg-gradient-to-r from-lavender to-pink"
+                          initial={{ scale: 0, opacity: 0 }}
+                          animate={{ scale: 1, opacity: 1 }}
+                          className="absolute -top-1 -right-1 w-1.5 h-1.5 rounded-full bg-gradient-to-r from-lavender to-pink"
                         />
                       )}
                     </div>
                     
                     {/* Label */}
-                    <span className={`text-[10px] font-medium tracking-wide ${
+                    <span className={`text-[10px] font-medium ${
                       isActive 
                         ? "text-transparent bg-clip-text bg-gradient-to-r from-lavender to-pink font-semibold" 
                         : ""
                     }`}>
                       {item.label}
                     </span>
-                  </motion.div>
+                  </div>
                 </motion.div>
               </Link>
             );
           })}
         </div>
-        
-        {/* SVG gradient definition for icons */}
-        <svg width="0" height="0" className="absolute">
-          <defs>
-            <linearGradient id="icon-gradient" x1="0%" y1="0%" x2="100%" y2="100%">
-              <stop offset="0%" stopColor="hsl(var(--lavender))" />
-              <stop offset="100%" stopColor="hsl(var(--pink))" />
-            </linearGradient>
-          </defs>
-        </svg>
       </motion.div>
     </nav>
   );
