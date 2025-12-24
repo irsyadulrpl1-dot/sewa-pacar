@@ -46,7 +46,7 @@ const Index = () => {
   return (
     <MobileLayout>
       {/* Tabs for Feed vs Explore */}
-      <div className="sticky top-16 z-40 bg-background/95 backdrop-blur-md border-b border-border/50">
+      <div className="sticky top-14 md:top-24 z-40 bg-background/95 backdrop-blur-md border-b border-border/50">
         <Tabs defaultValue="feed" className="w-full">
           <TabsList className="w-full max-w-md mx-auto justify-center bg-transparent h-14 gap-0 p-0 rounded-none">
             <TabsTrigger 
