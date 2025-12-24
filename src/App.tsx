@@ -58,6 +58,9 @@ const PaymentHistory = lazy(() => import("./pages/PaymentHistory").then(module =
 const AdminPayments = lazy(() => import("./pages/AdminPayments").then(module => ({ 
   default: () => <LazyPageWrapper><module.default /></LazyPageWrapper> 
 })));
+const UserProfile = lazy(() => import("./pages/UserProfile").then(module => ({ 
+  default: () => <LazyPageWrapper><module.default /></LazyPageWrapper> 
+})));
 
 // Configure QueryClient with better defaults for error handling and caching
 const queryClient = new QueryClient({
@@ -109,6 +112,7 @@ const App = () => (
                 <Route path="/settings" element={<Settings />} />
                 <Route path="/payment-history" element={<PaymentHistory />} />
                 <Route path="/admin/payments" element={<AdminPayments />} />
+                <Route path="/user/:userId" element={<UserProfile />} />
                 <Route path="*" element={<NotFound />} />
               </Routes>
             </Suspense>
