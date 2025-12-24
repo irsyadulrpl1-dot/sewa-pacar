@@ -130,7 +130,7 @@ export default function Profile() {
         <motion.div
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
-          className="text-center mb-8"
+          className="text-center mb-6"
         >
           {/* Avatar */}
           <div className="relative inline-block mb-4">
@@ -155,8 +155,9 @@ export default function Profile() {
             <div className="absolute top-2 right-2 w-4 h-4 bg-mint rounded-full border-2 border-background" />
           </div>
 
+          {/* Name & Username */}
           {isEditing ? (
-            <div className="space-y-2">
+            <div className="space-y-2 max-w-xs mx-auto">
               <Input
                 name="full_name"
                 value={formData.full_name}
@@ -180,19 +181,32 @@ export default function Profile() {
             </>
           )}
 
-          {/* Stats */}
-          <div className="flex items-center justify-center gap-4 mt-4 text-sm">
+          {/* Stats: Age & Location */}
+          <div className="flex items-center justify-center gap-4 mt-3 text-sm">
             {profile.date_of_birth && (
               <span className="flex items-center gap-1 text-muted-foreground">
                 <Calendar className="w-4 h-4" />
                 {calculateAge(profile.date_of_birth)} tahun
               </span>
             )}
-            {profile.city && (
-              <span className="flex items-center gap-1 text-muted-foreground">
-                <MapPin className="w-4 h-4" />
-                {profile.city}
-              </span>
+            {isEditing ? (
+              <div className="flex items-center gap-1">
+                <MapPin className="w-4 h-4 text-muted-foreground" />
+                <Input
+                  name="city"
+                  value={formData.city}
+                  onChange={handleChange}
+                  placeholder="Kota"
+                  className="h-7 w-24 text-sm rounded-lg"
+                />
+              </div>
+            ) : (
+              profile.city && (
+                <span className="flex items-center gap-1 text-muted-foreground">
+                  <MapPin className="w-4 h-4" />
+                  {profile.city}
+                </span>
+              )
             )}
           </div>
 
@@ -200,6 +214,71 @@ export default function Profile() {
             <Badge className="mt-3 bg-mint/20 text-mint border-mint/30">
               ✓ Terverifikasi
             </Badge>
+          )}
+
+          {/* Bio */}
+          <div className="mt-4 max-w-sm mx-auto">
+            {isEditing ? (
+              <Textarea
+                name="bio"
+                value={formData.bio}
+                onChange={handleChange}
+                placeholder="Tulis bio singkat..."
+                className="rounded-xl text-center text-sm"
+                rows={2}
+              />
+            ) : (
+              profile.bio && (
+                <p className="text-foreground text-sm leading-relaxed">
+                  {profile.bio}
+                </p>
+              )
+            )}
+          </div>
+
+          {/* Interests */}
+          {(formData.interests.length > 0 || isEditing) && (
+            <div className="mt-4">
+              <div className="flex flex-wrap justify-center gap-2">
+                {formData.interests.map((interest) => (
+                  <Badge
+                    key={interest}
+                    variant="secondary"
+                    className="rounded-full px-3 py-1 text-xs"
+                  >
+                    {interest}
+                    {isEditing && (
+                      <button
+                        onClick={() => removeInterest(interest)}
+                        className="ml-1 hover:text-destructive"
+                      >
+                        ×
+                      </button>
+                    )}
+                  </Badge>
+                ))}
+              </div>
+              {isEditing && (
+                <div className="flex gap-2 mt-3 max-w-xs mx-auto">
+                  <Input
+                    value={newInterest}
+                    onChange={(e) => setNewInterest(e.target.value)}
+                    placeholder="Tambah minat..."
+                    className="rounded-xl text-sm"
+                    onKeyPress={(e) => e.key === "Enter" && (e.preventDefault(), addInterest())}
+                  />
+                  <Button
+                    type="button"
+                    variant="soft"
+                    size="sm"
+                    onClick={addInterest}
+                    className="rounded-xl"
+                  >
+                    +
+                  </Button>
+                </div>
+              )}
+            </div>
           )}
         </motion.div>
 
@@ -245,102 +324,11 @@ export default function Profile() {
           )}
         </div>
 
-        {/* Profile Details */}
-        <motion.div
-          initial={{ opacity: 0, y: 20 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ delay: 0.1 }}
-          className="glass-card rounded-3xl p-6 space-y-6"
-        >
-          {/* Bio */}
-          <div>
-            <Label className="text-sm text-muted-foreground mb-2 block">Bio</Label>
-            {isEditing ? (
-              <Textarea
-                name="bio"
-                value={formData.bio}
-                onChange={handleChange}
-                placeholder="Ceritakan tentang dirimu..."
-                className="rounded-xl"
-              />
-            ) : (
-              <p className="text-foreground">
-                {profile.bio || "Belum ada bio"}
-              </p>
-            )}
-          </div>
-
-          {/* City */}
-          <div>
-            <Label className="text-sm text-muted-foreground mb-2 block">Kota</Label>
-            {isEditing ? (
-              <Input
-                name="city"
-                value={formData.city}
-                onChange={handleChange}
-                placeholder="Jakarta, Bandung, dll"
-                className="rounded-xl"
-              />
-            ) : (
-              <p className="text-foreground">
-                {profile.city || "Belum diatur"}
-              </p>
-            )}
-          </div>
-
-          {/* Interests */}
-          <div>
-            <Label className="text-sm text-muted-foreground mb-2 block">Minat & Hobi</Label>
-            <div className="flex flex-wrap gap-2 mb-3">
-              {formData.interests.map((interest) => (
-                <Badge
-                  key={interest}
-                  variant="secondary"
-                  className="rounded-full px-3 py-1"
-                >
-                  {interest}
-                  {isEditing && (
-                    <button
-                      onClick={() => removeInterest(interest)}
-                      className="ml-2 hover:text-destructive"
-                    >
-                      ×
-                    </button>
-                  )}
-                </Badge>
-              ))}
-              {formData.interests.length === 0 && !isEditing && (
-                <span className="text-muted-foreground">Belum ada minat</span>
-              )}
-            </div>
-            {isEditing && (
-              <div className="flex gap-2">
-                <Input
-                  value={newInterest}
-                  onChange={(e) => setNewInterest(e.target.value)}
-                  placeholder="Tambah minat..."
-                  className="rounded-xl"
-                  onKeyPress={(e) => e.key === "Enter" && (e.preventDefault(), addInterest())}
-                />
-                <Button
-                  type="button"
-                  variant="soft"
-                  onClick={addInterest}
-                  className="rounded-xl"
-                >
-                  Tambah
-                </Button>
-              </div>
-            )}
-          </div>
-        </motion.div>
-
         {/* User Posts Grid */}
         <motion.div
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
-          transition={{ delay: 0.15 }}
-          className="mt-6"
+          transition={{ delay: 0.1 }}
         >
           <UserPostsGrid />
         </motion.div>
@@ -349,7 +337,7 @@ export default function Profile() {
         <motion.div
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
-          transition={{ delay: 0.2 }}
+          transition={{ delay: 0.15 }}
           className="mt-6"
         >
           <Button
