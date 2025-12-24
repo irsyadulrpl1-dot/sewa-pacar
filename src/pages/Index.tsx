@@ -8,7 +8,7 @@ import { companions } from "@/data/companions";
 import { Heart, Users, Shield, Star, ChevronRight, Sparkles, Zap, Coffee, MapPin, Plus, Compass } from "lucide-react";
 import { PostFeed } from "@/components/posts/PostFeed";
 import { CreatePostDialog } from "@/components/posts/CreatePostDialog";
-import { ExploreFeed } from "@/components/explore/ExploreFeed";
+import { CompanionExploreFeed } from "@/components/explore/CompanionExploreFeed";
 import { useAuth } from "@/contexts/AuthContext";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 
@@ -78,11 +78,11 @@ const Index = () => {
             </div>
           </TabsContent>
 
-          {/* Explore Content - Dynamic Recommendations */}
+          {/* Explore Content - Companion Profiles */}
           <TabsContent value="explore" className="mt-0">
             {user ? (
-              <div className="container mx-auto px-4 py-6 max-w-lg">
-                <ExploreFeed />
+              <div className="container mx-auto px-4 py-6 max-w-2xl">
+                <CompanionExploreFeed />
               </div>
             ) : (
               <>
