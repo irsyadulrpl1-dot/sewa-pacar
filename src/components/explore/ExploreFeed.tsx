@@ -174,9 +174,9 @@ export function ExploreFeed() {
         })}
       </div>
 
-      {/* Posts */}
+      {/* Posts - Grid for desktop, single column for mobile */}
       <AnimatePresence mode="popLayout">
-        <div className="space-y-6">
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
           {sortedPosts.map((post, index) => {
             const isLiked = likedPosts.has(post.id);
             const isSaved = savedPosts.has(post.id);

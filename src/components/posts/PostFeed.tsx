@@ -8,9 +8,9 @@ export function PostFeed() {
 
   if (isLoading) {
     return (
-      <div className="space-y-6">
-        {[1, 2, 3].map((i) => (
-          <div key={i} className="bg-card rounded-lg overflow-hidden">
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+        {[1, 2, 3, 4, 5, 6].map((i) => (
+          <div key={i} className="bg-card rounded-lg overflow-hidden border border-border/50">
             <div className="flex items-center gap-3 p-4">
               <Skeleton className="h-10 w-10 rounded-full" />
               <div className="space-y-2">
@@ -42,7 +42,7 @@ export function PostFeed() {
   }
 
   return (
-    <div className="space-y-6">
+    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
       {posts.map((post) => (
         <PostCard key={post.id} post={post} />
       ))}
