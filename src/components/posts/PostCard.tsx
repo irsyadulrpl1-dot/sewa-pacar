@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { Heart, MessageCircle, Share2, MoreHorizontal, Trash2, MapPin, Clock, BadgeCheck } from "lucide-react";
+import { Heart, MessageCircle, Share2, MoreHorizontal, Trash2, MapPin, Clock, BadgeCheck, UserPlus, UserMinus } from "lucide-react";
 import { motion } from "framer-motion";
 import { formatDistanceToNow } from "date-fns";
 import { id } from "date-fns/locale";
@@ -15,6 +15,7 @@ import {
 } from "@/components/ui/dropdown-menu";
 import { Post, usePosts } from "@/hooks/usePosts";
 import { useAuth } from "@/contexts/AuthContext";
+import { useFollowStatus } from "@/hooks/useFollows";
 import { PostComments } from "./PostComments";
 import { Link, useNavigate } from "react-router-dom";
 
@@ -35,6 +36,7 @@ export function PostCard({ post }: PostCardProps) {
   const { user } = useAuth();
   const navigate = useNavigate();
   const { toggleLike, deletePost } = usePosts();
+  const { isFollowing, isLoading: isFollowLoading, toggleFollow } = useFollowStatus(post.user_id);
   const [showComments, setShowComments] = useState(false);
   const [isLiked, setIsLiked] = useState(post.is_liked);
   const [likesCount, setLikesCount] = useState(post.likes_count);
@@ -42,6 +44,18 @@ export function PostCard({ post }: PostCardProps) {
 
   const profileInfo = getMockProfileInfo();
   const isOwnPost = user?.id === post.user_id;
+
+  const handleFollow = async () => {
+    if (!user) {
+      navigate("/auth");
+      return;
+    }
+    await toggleFollow();
+  };
+
+  const handleProfileClick = () => {
+    navigate(`/user/${post.user_id}`);
+  };
 
   const formatPrice = (price: number) => {
     return new Intl.NumberFormat("id-ID", {
@@ -91,7 +105,10 @@ export function PostCard({ post }: PostCardProps) {
     <Card className="overflow-hidden bg-card border-border/50 shadow-lg">
       {/* Header */}
       <div className="flex items-center justify-between p-4">
-        <Link to={`/profile/${post.user_id}`} className="flex items-center gap-3">
+        <div 
+          onClick={handleProfileClick}
+          className="flex items-center gap-3 cursor-pointer hover:opacity-80 transition-opacity"
+        >
           <Avatar className="h-11 w-11 ring-2 ring-primary/20">
             <AvatarImage src={post.profile.avatar_url || undefined} />
             <AvatarFallback className="bg-gradient-to-br from-primary to-primary/60 text-primary-foreground font-semibold">
@@ -105,12 +122,30 @@ export function PostCard({ post }: PostCardProps) {
             </div>
             <p className="text-sm text-muted-foreground">@{post.profile.username}</p>
           </div>
-        </Link>
+        </div>
         
         <div className="flex items-center gap-2">
           <span className="text-xs text-muted-foreground">
             {formatDistanceToNow(new Date(post.created_at), { addSuffix: false, locale: id })}
           </span>
+          
+          {/* Follow button for other users' posts */}
+          {!isOwnPost && (
+            <Button
+              variant={isFollowing ? "outline" : "default"}
+              size="sm"
+              onClick={handleFollow}
+              disabled={isFollowLoading}
+              className="rounded-full h-8 px-3 text-xs"
+            >
+              {isFollowing ? (
+                <UserMinus className="h-3.5 w-3.5" />
+              ) : (
+                <UserPlus className="h-3.5 w-3.5" />
+              )}
+            </Button>
+          )}
+          
           {isOwnPost && (
             <DropdownMenu>
               <DropdownMenuTrigger asChild>
