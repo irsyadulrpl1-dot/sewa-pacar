@@ -1,9 +1,11 @@
 import { useState, useEffect } from "react";
 import { useParams, useNavigate } from "react-router-dom";
 import { motion } from "framer-motion";
-import { MapPin, Calendar, User, Sparkles, BadgeCheck, MessageCircle, UserPlus, UserMinus } from "lucide-react";
+import { MapPin, User, Sparkles, BadgeCheck, MessageCircle, UserPlus, UserMinus, Grid3X3, ImageOff, Clock, Heart, Check, Calendar } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
+import { Card, CardContent } from "@/components/ui/card";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { MobileLayout } from "@/components/MobileLayout";
 import { useAuth } from "@/contexts/AuthContext";
 import { useToast } from "@/hooks/use-toast";
@@ -12,7 +14,7 @@ import { useFollowCounts, useFollowStatus } from "@/hooks/useFollows";
 import { useQuery } from "@tanstack/react-query";
 import { formatCount } from "@/lib/formatters";
 import { Skeleton } from "@/components/ui/skeleton";
-import { Grid3X3, ImageOff } from "lucide-react";
+import { BookingPaymentDialog } from "@/components/payments/BookingPaymentDialog";
 
 interface PublicProfile {
   user_id: string;
@@ -28,6 +30,20 @@ interface PublicProfile {
   gender: string | null;
 }
 
+// Mock profile info - in real app this would come from database
+const getMockProfileInfo = (profile: PublicProfile) => ({
+  age: 22,
+  hourlyRate: 250000,
+  availability: "Weekdays & Weekend",
+  personality: ["Friendly", "Ceria", "Humble", "Good Listener"],
+  activities: ["Coffee date", "Art exhibition", "Foto session", "Jalan santai", "Nonton film", "Shopping trip"],
+  packages: [
+    { name: "Paket Hangout", duration: "3 jam", price: 500000, description: "Temani ngobrol, jalan-jalan santai" },
+    { name: "Paket Full Day", duration: "8 jam", price: 1200000, description: "Temani seharian penuh untuk berbagai aktivitas" },
+    { name: "Paket Event", duration: "5 jam", price: 800000, description: "Temani ke acara atau event spesial" },
+  ],
+});
+
 export default function UserProfile() {
   const { userId } = useParams<{ userId: string }>();
   const { user } = useAuth();
@@ -35,6 +51,9 @@ export default function UserProfile() {
   const { toast } = useToast();
   const { followersCount, followingCount } = useFollowCounts(userId || "");
   const { isFollowing, toggleFollow, isLoading: isFollowLoading } = useFollowStatus(userId || "");
+  const [activeTab, setActiveTab] = useState("posts");
+  const [showPaymentDialog, setShowPaymentDialog] = useState(false);
+  const [selectedPackage, setSelectedPackage] = useState<{ name: string; duration: string; price: number } | null>(null);
 
   // Redirect to own profile if viewing self
   useEffect(() => {
@@ -95,15 +114,29 @@ export default function UserProfile() {
     navigate(`/chat/${userId}`);
   };
 
-  const calculateAge = (birthDate: string) => {
-    const today = new Date();
-    const birth = new Date(birthDate);
-    let age = today.getFullYear() - birth.getFullYear();
-    const monthDiff = today.getMonth() - birth.getMonth();
-    if (monthDiff < 0 || (monthDiff === 0 && today.getDate() < birth.getDate())) {
-      age--;
+  const handleBookPackage = (pkg: { name: string; duration: string; price: number }) => {
+    if (!user) {
+      navigate("/auth");
+      return;
     }
-    return age;
+    setSelectedPackage(pkg);
+    setShowPaymentDialog(true);
+  };
+
+  const handlePaymentSuccess = () => {
+    toast({
+      title: "Booking Berhasil!",
+      description: "Kami akan menghubungi kamu segera untuk konfirmasi.",
+    });
+  };
+
+  const formatPrice = (price: number) => {
+    return new Intl.NumberFormat("id-ID", {
+      style: "currency",
+      currency: "IDR",
+      minimumFractionDigits: 0,
+      maximumFractionDigits: 0,
+    }).format(price);
   };
 
   if (isLoading) {
@@ -132,6 +165,8 @@ export default function UserProfile() {
       </MobileLayout>
     );
   }
+
+  const profileInfo = getMockProfileInfo(profile);
 
   return (
     <MobileLayout showFooter={false}>
@@ -195,12 +230,24 @@ export default function UserProfile() {
 
           {/* Location & Age */}
           <div className="flex items-center justify-center gap-4 mt-3 text-sm">
+            <span className="flex items-center gap-1 text-muted-foreground">
+              <Calendar className="w-4 h-4" />
+              {profileInfo.age} tahun
+            </span>
             {profile.city && (
-              <span className="flex items-center gap-1 text-muted-foreground">
-                <MapPin className="w-4 h-4" />
-                {profile.city}
-              </span>
+              <>
+                <span className="text-muted-foreground">•</span>
+                <span className="flex items-center gap-1 text-muted-foreground">
+                  <MapPin className="w-4 h-4" />
+                  {profile.city}
+                </span>
+              </>
             )}
+            <span className="text-muted-foreground">•</span>
+            <span className="flex items-center gap-1 text-muted-foreground">
+              <Clock className="w-4 h-4" />
+              {profileInfo.availability}
+            </span>
           </div>
 
           {/* Bio */}
@@ -260,47 +307,149 @@ export default function UserProfile() {
           </Button>
         </div>
 
-        {/* User Posts Grid */}
-        <motion.div
-          initial={{ opacity: 0, y: 20 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ delay: 0.1 }}
-        >
-          {isLoadingPosts ? (
-            <div className="grid grid-cols-3 gap-1">
-              {[1, 2, 3, 4, 5, 6].map((i) => (
-                <Skeleton key={i} className="aspect-square" />
-              ))}
-            </div>
-          ) : !userPosts || userPosts.length === 0 ? (
-            <div className="text-center py-12">
-              <ImageOff className="h-12 w-12 mx-auto text-muted-foreground mb-3" />
-              <p className="text-muted-foreground">Belum ada postingan</p>
-            </div>
-          ) : (
-            <div>
-              <div className="flex items-center justify-center gap-2 py-4 border-t border-border">
-                <Grid3X3 className="h-4 w-4" />
-                <span className="text-sm font-semibold">POSTINGAN</span>
-              </div>
-              <div className="grid grid-cols-3 gap-1">
-                {userPosts.map((post) => (
-                  <div key={post.id} className="relative aspect-square group">
-                    <img
-                      src={post.image_url}
-                      alt={post.caption || "Post"}
-                      className="w-full h-full object-cover"
-                    />
-                    <div className="absolute inset-0 bg-black/50 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center">
-                      <span className="text-white text-sm font-medium">Lihat</span>
+        {/* Tabs */}
+        <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
+          <TabsList className="grid w-full grid-cols-2 mb-4">
+            <TabsTrigger value="posts" className="flex items-center gap-2">
+              <Grid3X3 className="h-4 w-4" />
+              Postingan
+            </TabsTrigger>
+            <TabsTrigger value="info" className="flex items-center gap-2">
+              <User className="h-4 w-4" />
+              Informasi
+            </TabsTrigger>
+          </TabsList>
+
+          {/* Posts Tab */}
+          <TabsContent value="posts">
+            <motion.div
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ delay: 0.1 }}
+            >
+              {isLoadingPosts ? (
+                <div className="grid grid-cols-3 gap-1">
+                  {[1, 2, 3, 4, 5, 6].map((i) => (
+                    <Skeleton key={i} className="aspect-square" />
+                  ))}
+                </div>
+              ) : !userPosts || userPosts.length === 0 ? (
+                <div className="text-center py-12">
+                  <ImageOff className="h-12 w-12 mx-auto text-muted-foreground mb-3" />
+                  <p className="text-muted-foreground">Belum ada postingan</p>
+                </div>
+              ) : (
+                <div className="grid grid-cols-3 gap-1">
+                  {userPosts.map((post) => (
+                    <div key={post.id} className="relative aspect-square group">
+                      <img
+                        src={post.image_url}
+                        alt={post.caption || "Post"}
+                        className="w-full h-full object-cover"
+                      />
+                      <div className="absolute inset-0 bg-black/50 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center">
+                        <span className="text-white text-sm font-medium">Lihat</span>
+                      </div>
                     </div>
-                  </div>
-                ))}
+                  ))}
+                </div>
+              )}
+            </motion.div>
+          </TabsContent>
+
+          {/* Info Tab */}
+          <TabsContent value="info">
+            <motion.div
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              className="space-y-6"
+            >
+              {/* About Section */}
+              <div>
+                <h3 className="text-lg font-bold text-foreground mb-2">Tentang Aku</h3>
+                <p className="text-muted-foreground text-sm leading-relaxed">
+                  {profile.bio || `Halo! Nama aku ${profile.full_name}. Aku orangnya kalem tapi tetep asik kok kalau udah kenal. Kalau kamu butuh temen yang bisa bikin suasana nyaman dan fun, aku siap!`}
+                </p>
               </div>
-            </div>
-          )}
-        </motion.div>
+
+              {/* Personality Section */}
+              <div>
+                <h3 className="text-lg font-bold text-foreground mb-3">Kepribadian</h3>
+                <div className="flex flex-wrap gap-2">
+                  {profileInfo.personality.map((trait) => (
+                    <Badge
+                      key={trait}
+                      variant="outline"
+                      className="rounded-full px-4 py-1.5 text-sm border-border bg-background"
+                    >
+                      {trait}
+                    </Badge>
+                  ))}
+                </div>
+              </div>
+
+              {/* Activities Section */}
+              <div>
+                <h3 className="text-lg font-bold text-foreground mb-3">Bisa Nemenin Untuk</h3>
+                <div className="grid grid-cols-2 gap-2">
+                  {profileInfo.activities.map((activity) => (
+                    <div key={activity} className="flex items-center gap-2 text-sm text-muted-foreground">
+                      <Check className="h-4 w-4 text-primary" />
+                      {activity}
+                    </div>
+                  ))}
+                </div>
+              </div>
+
+              {/* Packages Section */}
+              <div>
+                <h3 className="text-lg font-bold text-foreground mb-3">Paket Tersedia</h3>
+                <div className="space-y-3">
+                  {profileInfo.packages.map((pkg) => (
+                    <Card key={pkg.name} className="overflow-hidden border-border/50">
+                      <CardContent className="p-4">
+                        <div className="flex items-center justify-between mb-2">
+                          <div>
+                            <h4 className="font-semibold text-foreground">{pkg.name}</h4>
+                            <p className="text-xs text-muted-foreground flex items-center gap-1">
+                              <Clock className="h-3 w-3" />
+                              {pkg.duration}
+                            </p>
+                          </div>
+                          <p className="text-lg font-bold text-primary">{formatPrice(pkg.price)}</p>
+                        </div>
+                        <p className="text-sm text-muted-foreground mb-3">{pkg.description}</p>
+                        <Button 
+                          className="w-full rounded-xl"
+                          variant="gradient"
+                          onClick={() => handleBookPackage(pkg)}
+                        >
+                          Book Sekarang
+                        </Button>
+                      </CardContent>
+                    </Card>
+                  ))}
+                </div>
+              </div>
+            </motion.div>
+          </TabsContent>
+        </Tabs>
       </div>
+
+      {/* Payment Dialog */}
+      {selectedPackage && (
+        <BookingPaymentDialog
+          open={showPaymentDialog}
+          onOpenChange={setShowPaymentDialog}
+          companion={{
+            id: userId || "",
+            name: profile.full_name || "User",
+            image: profile.avatar_url || "",
+          }}
+          selectedPackage={selectedPackage}
+          onSuccess={handlePaymentSuccess}
+        />
+      )}
     </MobileLayout>
   );
 }
