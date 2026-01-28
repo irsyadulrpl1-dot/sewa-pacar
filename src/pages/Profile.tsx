@@ -1,7 +1,7 @@
 import { useState, useEffect, useCallback } from "react";
 import { useNavigate } from "react-router-dom";
 import { motion } from "framer-motion";
-import { Camera, Edit2, MapPin, Calendar, User, Save, X, Sparkles, Plus, BadgeCheck } from "lucide-react";
+import { Camera, Edit2, MapPin, Calendar, User, Save, X, Sparkles, BadgeCheck } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
@@ -10,11 +10,8 @@ import { MobileLayout } from "@/components/MobileLayout";
 import { useAuth } from "@/contexts/AuthContext";
 import { useProfile } from "@/hooks/useProfile";
 import { useToast } from "@/hooks/use-toast";
-import { CreatePostDialog } from "@/components/posts/CreatePostDialog";
-import { UserPostsGrid } from "@/components/posts/UserPostsGrid";
 import { AccountSettingsMenu } from "@/components/AccountSettingsMenu";
 import { useFollowCounts } from "@/hooks/useFollows";
-import { usePosts } from "@/hooks/usePosts";
 import { formatCount, calculateAge } from "@/lib/formatters";
 import { ProfileSkeleton } from "@/components/ui/loading-states";
 
@@ -24,7 +21,6 @@ export default function Profile() {
   const navigate = useNavigate();
   const { toast } = useToast();
   const { followersCount, followingCount } = useFollowCounts(user?.id || "");
-  const { userPosts } = usePosts();
   
   const [isEditing, setIsEditing] = useState(false);
   const [saving, setSaving] = useState(false);
@@ -195,11 +191,6 @@ export default function Profile() {
           {/* Followers/Following Stats */}
           <div className="flex items-center justify-center gap-6 mt-4">
             <div className="text-center">
-              <p className="text-xl font-bold text-foreground">{userPosts?.length || 0}</p>
-              <p className="text-xs text-muted-foreground">Posts</p>
-            </div>
-            <div className="w-px h-8 bg-border" />
-            <div className="text-center">
               <p className="text-xl font-bold text-foreground">{formatCount(100000)}</p>
               <p className="text-xs text-muted-foreground">Followers</p>
             </div>
@@ -337,24 +328,10 @@ export default function Profile() {
                 <Edit2 className="w-4 h-4 mr-2" />
                 Edit Profil
               </Button>
-              <CreatePostDialog>
-                <Button variant="gradient" className="rounded-xl">
-                  <Plus className="w-4 h-4 mr-2" />
-                  Buat Post
-                </Button>
-              </CreatePostDialog>
             </>
           )}
         </div>
 
-        {/* User Posts Grid */}
-        <motion.div
-          initial={{ opacity: 0, y: 20 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ delay: 0.1 }}
-        >
-          <UserPostsGrid />
-        </motion.div>
       </div>
     </MobileLayout>
   );

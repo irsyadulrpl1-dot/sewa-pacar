@@ -5,13 +5,14 @@ import { MobileLayout } from "@/components/MobileLayout";
 import { CompanionCard } from "@/components/CompanionCard";
 import { Testimonials } from "@/components/Testimonials";
 import { companions } from "@/data/companions";
-import { Heart, Users, Shield, Star, ChevronRight, Sparkles, Zap, Coffee, MapPin, Plus, Compass } from "lucide-react";
-import { PostFeed } from "@/components/posts/PostFeed";
-import { CreatePostDialog } from "@/components/posts/CreatePostDialog";
+import { Heart, Users, Shield, Star, ChevronRight, Sparkles, Zap, Coffee, MapPin, Compass } from "lucide-react";
+import { InfoList } from "@/components/info/InfoList";
+import { AvailabilityInfoSection } from "@/components/home/AvailabilityInfoSection";
 import { ExploreFeed } from "@/components/explore/ExploreFeed";
 import { CompanionExploreFeed } from "@/components/explore/CompanionExploreFeed";
 import { useAuth } from "@/contexts/AuthContext";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { Info as InfoIcon } from "lucide-react";
 
 const services = [
   {
@@ -47,14 +48,14 @@ const Index = () => {
     <MobileLayout>
       {/* Tabs for Feed vs Explore */}
       <div className="sticky top-14 md:top-24 z-30 bg-background/95 backdrop-blur-md border-b border-border/50">
-        <Tabs defaultValue="feed" className="w-full">
+        <Tabs defaultValue="info" className="w-full">
           <TabsList className="w-full max-w-md mx-auto justify-center bg-transparent h-14 gap-0 p-0 rounded-none">
             <TabsTrigger 
-              value="feed" 
+              value="info" 
               className="relative flex-1 gap-2 h-full bg-transparent border-0 rounded-none text-muted-foreground data-[state=active]:text-primary data-[state=active]:bg-transparent data-[state=active]:shadow-none font-medium transition-colors hover:text-foreground after:absolute after:bottom-0 after:left-1/2 after:-translate-x-1/2 after:w-20 after:h-0.5 after:bg-primary after:rounded-full after:scale-x-0 data-[state=active]:after:scale-x-100 after:transition-transform after:duration-300"
             >
-              <Heart className="h-4 w-4" />
-              Feed
+              <InfoIcon className="h-4 w-4" />
+              Info
             </TabsTrigger>
             <TabsTrigger 
               value="explore" 
@@ -65,33 +66,21 @@ const Index = () => {
             </TabsTrigger>
           </TabsList>
 
-          {/* Feed Content */}
-          <TabsContent value="feed" className="mt-0">
+          {/* Info Content */}
+          <TabsContent value="info" className="mt-0">
             <div className="container mx-auto px-4 py-6 max-w-6xl">
-              {/* Create Post Button */}
-              {user && (
-                <div className="max-w-lg mx-auto md:max-w-none md:mx-0 mb-6">
-                  <CreatePostDialog>
-                    <Button variant="outline" className="w-full md:w-auto rounded-xl justify-start gap-3 h-14 px-4">
-                      <div className="w-10 h-10 rounded-full bg-gradient-to-br from-lavender to-pink flex items-center justify-center">
-                        <Plus className="w-5 h-5 text-primary-foreground" />
-                      </div>
-                      <span className="text-muted-foreground">Buat postingan baru...</span>
-                    </Button>
-                  </CreatePostDialog>
-                </div>
-              )}
-
-              {/* Post Feed - Grid for desktop */}
-              <PostFeed />
+              <AvailabilityInfoSection />
+              <div className="mt-6">
+                <InfoList />
+              </div>
             </div>
           </TabsContent>
 
-          {/* Explore Content - Posts with Companion Profiles */}
+          {/* Explore Content */}
           <TabsContent value="explore" className="mt-0">
             {user ? (
               <div className="container mx-auto px-4 py-6 max-w-6xl">
-                <ExploreFeed />
+                <CompanionExploreFeed />
               </div>
             ) : (
               <>
