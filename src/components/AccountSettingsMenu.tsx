@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
-import { Settings, UserPlus, Users, LogOut, ChevronRight, X } from "lucide-react";
+import { Settings, UserPlus, Users, LogOut, ChevronRight, X, Calendar } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import {
   DropdownMenu,
@@ -77,7 +77,18 @@ export function AccountSettingsMenu({ avatarUrl, fullName, username }: AccountSe
     setIsDrawerOpen(false);
   };
 
+  const handleBookingsHistory = () => {
+    navigate("/bookings");
+    setIsDrawerOpen(false);
+  };
+
   const menuItems = [
+    {
+      icon: Calendar,
+      label: "Riwayat Pemesanan",
+      description: "Lihat semua pemesanan",
+      onClick: handleBookingsHistory,
+    },
     {
       icon: UserPlus,
       label: "Tambah Akun",

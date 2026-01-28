@@ -54,9 +54,6 @@ const NotFound = lazy(() => import("./pages/NotFound").then(module => ({
 const PaymentHistory = lazy(() => import("./pages/PaymentHistory").then(module => ({ 
   default: () => <LazyPageWrapper><module.default /></LazyPageWrapper> 
 })));
-const AdminPayments = lazy(() => import("./pages/AdminPayments").then(module => ({ 
-  default: () => <LazyPageWrapper><module.default /></LazyPageWrapper> 
-})));
 const UserProfile = lazy(() => import("./pages/UserProfile").then(module => ({ 
   default: () => <LazyPageWrapper><module.default /></LazyPageWrapper> 
 })));
@@ -78,10 +75,16 @@ const Dashboard = lazy(() => import("./pages/Dashboard").then(module => ({
 const DashboardRenter = lazy(() => import("./pages/DashboardRenter").then(module => ({
   default: () => <LazyPageWrapper><module.default /></LazyPageWrapper>
 })));
+const DashboardCompanion = lazy(() => import("./pages/DashboardCompanion").then(module => ({
+  default: () => <LazyPageWrapper><module.default /></LazyPageWrapper>
+})));
 const CompanionBookings = lazy(() => import("./pages/CompanionBookings").then(module => ({
   default: () => <LazyPageWrapper><module.default /></LazyPageWrapper>
 })));
 const IncomingBookings = lazy(() => import("./pages/IncomingBookings").then(module => ({
+  default: () => <LazyPageWrapper><module.default /></LazyPageWrapper>
+})));
+const CompanionMyBookings = lazy(() => import("./pages/CompanionMyBookings").then(module => ({
   default: () => <LazyPageWrapper><module.default /></LazyPageWrapper>
 })));
 const AdminDashboard = lazy(() => import("./pages/admin/Dashboard").then(module => ({
@@ -94,6 +97,9 @@ const AdminBookings = lazy(() => import("./pages/admin/Bookings").then(module =>
   default: () => <LazyPageWrapper><module.default /></LazyPageWrapper>
 })));
 const AdminBookingDetail = lazy(() => import("./pages/admin/BookingDetail").then(module => ({
+  default: () => <LazyPageWrapper><module.default /></LazyPageWrapper>
+})));
+const AdminPayments = lazy(() => import("./pages/admin/Payments").then(module => ({
   default: () => <LazyPageWrapper><module.default /></LazyPageWrapper>
 })));
 // Use static import for Info to avoid dev dynamic import fetch issues
@@ -140,7 +146,14 @@ const App = () => (
               <Routes>
                 <Route path="/" element={<Index />} />
                 <Route path="/info" element={<LazyPageWrapper><InfoPage /></LazyPageWrapper>} />
-                <Route path="/companion/:id" element={<CompanionProfile />} />
+                <Route 
+                  path="/companion/:id" 
+                  element={
+                    <RequireRole>
+                      <CompanionProfile />
+                    </RequireRole>
+                  } 
+                />
                 <Route
                   path="/companion-chat/:companionId"
                   element={
@@ -177,10 +190,26 @@ const App = () => (
                   }
                 />
                 <Route
+                  path="/dashboard/companion"
+                  element={
+                    <RequireRole allowedRoles={["companion"]}>
+                      <DashboardCompanion />
+                    </RequireRole>
+                  }
+                />
+                <Route
                   path="/companion/bookings"
                   element={
                     <RequireRole allowedRoles={["companion"]}>
                       <CompanionBookings />
+                    </RequireRole>
+                  }
+                />
+                <Route
+                  path="/companion/booking"
+                  element={
+                    <RequireRole allowedRoles={["companion"]}>
+                      <CompanionMyBookings />
                     </RequireRole>
                   }
                 />
@@ -203,7 +232,7 @@ const App = () => (
                 <Route
                   path="/find-friends"
                   element={
-                    <RequireRole allowedRoles={["renter"]}>
+                    <RequireRole allowedRoles={["renter", "companion"]}>
                       <FindFriends />
                     </RequireRole>
                   }
@@ -282,7 +311,7 @@ const App = () => (
                 <Route
                   path="/companions"
                   element={
-                    <RequireRole allowedRoles={["renter"]}>
+                    <RequireRole allowedRoles={["renter", "companion"]}>
                       <FindFriends />
                     </RequireRole>
                   }

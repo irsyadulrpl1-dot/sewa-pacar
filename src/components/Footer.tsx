@@ -47,10 +47,7 @@ export function Footer() {
             <h4 className="font-display font-bold text-foreground mb-5 text-lg">Menu</h4>
             <ul className="space-y-3">
               <li>
-                <Link to="/companions" className="text-muted-foreground hover:text-primary transition-colors text-sm flex items-center gap-2">
-                  <span className="w-1.5 h-1.5 rounded-full bg-lavender" />
-                  Katalog Pacar
-                </Link>
+                {/* Hapus link katalog */}
               </li>
               <li>
                 <Link to="/rules" className="text-muted-foreground hover:text-primary transition-colors text-sm flex items-center gap-2">

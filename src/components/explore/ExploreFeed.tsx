@@ -66,7 +66,7 @@ export function ExploreFeed() {
       navigate("/auth");
       return;
     }
-    navigate(`/companion/${companionId}/chat`);
+    navigate(`/companion-chat/${companionId}`);
   };
 
   const handleProfile = (companionId: string) => {

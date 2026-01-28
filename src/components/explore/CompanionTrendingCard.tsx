@@ -5,11 +5,21 @@ import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import { useNavigate } from "react-router-dom";
 import { Companion } from "@/data/companions";
+import { useAuth } from "@/contexts/AuthContext";
+import { toast } from "sonner";
 
 export function CompanionTrendingCard({ companion, isTrending }: { companion: Companion; isTrending?: boolean }) {
   const navigate = useNavigate();
+  const { user } = useAuth();
 
   const handleProfile = () => {
+    if (!user) {
+      toast.info("Silakan login untuk melihat profil lengkap");
+      setTimeout(() => {
+        navigate(`/auth?redirect=${encodeURIComponent(`/companion/${companion.id}`)}`);
+      }, 1200);
+      return;
+    }
     navigate(`/companion/${companion.id}`);
   };
 
@@ -27,6 +37,12 @@ export function CompanionTrendingCard({ companion, isTrending }: { companion: Co
             </Badge>
             {isTrending && <Badge className="bg-primary text-primary-foreground border-0">🔥 Trending</Badge>}
           </div>
+          {!user && (
+            <div className="absolute bottom-3 left-3 flex gap-2">
+              <Badge className="bg-primary text-primary-foreground border-0">Login Required</Badge>
+              <Badge variant="outline" className="bg-background/70 backdrop-blur-sm">Preview</Badge>
+            </div>
+          )}
           <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-transparent to-transparent" />
         </div>
         <div className="p-4 space-y-3">

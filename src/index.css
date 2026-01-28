@@ -193,3 +193,62 @@
   background-size: 200% 200%;
   animation: gradient-shift 3s ease infinite;
 }
+
+/* Hero soft romantic background */
+@keyframes heroGradientSlow {
+  0% { background-position: 0% 50%; }
+  50% { background-position: 100% 50%; }
+  100% { background-position: 0% 50%; }
+}
+
+.hero-animated-gradient {
+  background-image: linear-gradient(120deg,
+    hsl(340 70% 96%),
+    hsl(20 90% 95%),
+    hsl(280 40% 96%),
+    hsl(40 30% 92%)
+  );
+  background-size: 300% 300%;
+  animation: heroGradientSlow 30s ease-in-out infinite;
+}
+
+@keyframes particleFloat {
+  0%, 100% { transform: translate3d(0,0,0); opacity: 0.08; }
+  50% { transform: translate3d(6px,-8px,0); opacity: 0.12; }
+}
+
+.hero-particle {
+  width: 6px;
+  height: 6px;
+  border-radius: 9999px;
+  background: radial-gradient(circle, hsla(0,0%,100%,0.35), hsla(0,0%,100%,0.0));
+  filter: blur(1.5px);
+  animation: particleFloat 12s ease-in-out infinite;
+}
+
+.hero-radial-glow {
+  background: radial-gradient(ellipse at center,
+    hsl(0 0% 100% / 0.18) 0%,
+    hsl(30 70% 70% / 0.12) 35%,
+    transparent 60%
+  );
+  filter: blur(22px);
+}
+
+@keyframes waveMoveSlow {
+  0% { transform: translateX(-10%); }
+  50% { transform: translateX(10%); }
+  100% { transform: translateX(-10%); }
+}
+
+.animate-wave-slow {
+  animation: waveMoveSlow 24s ease-in-out infinite;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .hero-animated-gradient,
+  .animate-wave-slow,
+  .hero-particle {
+    animation: none !important;
+  }
+}

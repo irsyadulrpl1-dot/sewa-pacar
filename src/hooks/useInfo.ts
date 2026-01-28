@@ -2,7 +2,7 @@ import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import { createClient } from "@supabase/supabase-js";
 import { useAuth } from "@/contexts/AuthContext";
-import { useToast } from "@/hooks/use-toast";
+import { toast } from "sonner";
 
 export type InfoCategory = "tips" | "announcement" | "guide" | "system_update";
 
@@ -21,7 +21,6 @@ export interface Info {
 export function useInfo(category?: InfoCategory) {
   const { user } = useAuth();
   const queryClient = useQueryClient();
-  const { toast } = useToast();
   const untypedSupabase = createClient(
     import.meta.env.VITE_SUPABASE_URL,
     import.meta.env.VITE_SUPABASE_PUBLISHABLE_KEY,

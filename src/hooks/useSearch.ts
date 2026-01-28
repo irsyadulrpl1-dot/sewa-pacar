@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useCallback } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/contexts/AuthContext";
 
@@ -27,7 +27,7 @@ export function useSearch() {
   const [results, setResults] = useState<SafeProfile[]>([]);
   const [loading, setLoading] = useState(false);
 
-  const getRecommendedUsers = async (userProfile: ProfileWithOptionalSensitive | null) => {
+  const getRecommendedUsers = useCallback(async (userProfile: ProfileWithOptionalSensitive | null) => {
     if (!user) return;
 
     setLoading(true);
@@ -78,9 +78,9 @@ export function useSearch() {
     }
 
     setLoading(false);
-  };
+  }, [user]);
 
-  const searchUsers = async (query: string) => {
+  const searchUsers = useCallback(async (query: string) => {
     if (!user) return;
 
     setLoading(true);
@@ -97,7 +97,7 @@ export function useSearch() {
     }
 
     setLoading(false);
-  };
+  }, [user]);
 
   return {
     results,

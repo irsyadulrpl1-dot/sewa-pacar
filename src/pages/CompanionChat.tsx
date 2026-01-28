@@ -5,8 +5,9 @@ import { ArrowLeft, Send, Sparkles } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { useAuth } from "@/contexts/AuthContext";
-import { companions } from "@/data/companions";
 import { supabase } from "@/integrations/supabase/client";
+import { useCompanions } from "@/hooks/useCompanions";
+import { useMessages } from "@/hooks/useMessages";
 
 interface ChatMessage {
   id: string;
@@ -22,13 +23,16 @@ export default function CompanionChat() {
   const { user } = useAuth();
   const navigate = useNavigate();
   
-  const [messages, setMessages] = useState<ChatMessage[]>([]);
   const [message, setMessage] = useState("");
   const [sending, setSending] = useState(false);
-  const [loading, setLoading] = useState(true);
   const messagesEndRef = useRef<HTMLDivElement>(null);
 
-  const companion = companions.find((c) => c.id === companionId);
+  // Fetch companion from database using companionId (which should be user_id)
+  const { companions, loading: companionsLoading } = useCompanions({});
+  const companion = companions.find((c) => (c.user_id || c.id) === companionId);
+
+  // Use useMessages hook to fetch messages
+  const { messages, loading, sendMessage, markAsRead } = useMessages(companionId);
 
   useEffect(() => {
     if (!user) {
@@ -36,106 +40,47 @@ export default function CompanionChat() {
       return;
     }
 
-    if (!companion) {
-      navigate("/companions");
-      return;
-    }
-
-    // For demo purposes, we'll use a mock companion user ID based on companion.id
-    // In production, companions would have real user accounts
-    const mockCompanionUserId = `companion-${companion.id}`;
-
-    // Fetch existing messages
-    const fetchMessages = async () => {
-      setLoading(true);
-      const { data, error } = await supabase
-        .from("messages")
+    if (!companionsLoading && !companion && companionId) {
+      // If companion not found, try to fetch profile directlyz
+      supabase
+        .from("profiles")
         .select("*")
-        .or(
-          `and(sender_id.eq.${user.id},receiver_id.eq.${mockCompanionUserId}),and(sender_id.eq.${mockCompanionUserId},receiver_id.eq.${user.id})`
-        )
-        .order("created_at", { ascending: true });
-
-      if (!error && data) {
-        setMessages(data as ChatMessage[]);
-      }
-      setLoading(false);
-    };
-
-    fetchMessages();
-
-    // Subscribe to realtime updates
-    const channel = supabase
-      .channel(`companion-chat-${companion.id}`)
-      .on(
-        "postgres_changes",
-        {
-          event: "INSERT",
-          schema: "public",
-          table: "messages",
-        },
-        (payload) => {
-          const newMessage = payload.new as ChatMessage;
-          // Only add if it's related to this conversation
-          if (
-            (newMessage.sender_id === user.id && newMessage.receiver_id === mockCompanionUserId) ||
-            (newMessage.sender_id === mockCompanionUserId && newMessage.receiver_id === user.id)
-          ) {
-            setMessages((prev) => [...prev, newMessage]);
+        .eq("user_id", companionId)
+        .maybeSingle()
+        .then(({ data, error }) => {
+          if (error || !data) {
+            navigate("/messages");
           }
-        }
-      )
-      .subscribe();
+        });
+    }
+  }, [user, companion, companionId, companionsLoading, navigate]);
 
-    return () => {
-      supabase.removeChannel(channel);
-    };
-  }, [user, companion, navigate]);
+  // Mark messages as read when viewing
+  useEffect(() => {
+    if (messages.length > 0 && user) {
+      const unreadIds = messages
+        .filter(m => m.receiver_id === user.id && !m.is_read)
+        .map(m => m.id);
+      if (unreadIds.length > 0) {
+        markAsRead(unreadIds);
+      }
+    }
+  }, [messages, user, markAsRead]);
 
   useEffect(() => {
     messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
   }, [messages]);
 
   const handleSend = async () => {
-    if (!message.trim() || !companion || !user || sending) return;
+    if (!message.trim() || !companionId || !user || sending) return;
 
     setSending(true);
-    const mockCompanionUserId = `companion-${companion.id}`;
-    
-    // Add optimistic update
-    const tempMessage: ChatMessage = {
-      id: `temp-${Date.now()}`,
-      content: message.trim(),
-      sender_id: user.id,
-      receiver_id: mockCompanionUserId,
-      created_at: new Date().toISOString(),
-      is_read: false,
-    };
-    
-    setMessages((prev) => [...prev, tempMessage]);
-    setMessage("");
-
-    // Simulate companion auto-reply after a delay (for demo)
-    setTimeout(async () => {
-      const replies = [
-        `Hai! Terima kasih sudah menghubungi aku. Ada yang bisa aku bantu?`,
-        `Wah senang banget kamu tertarik! Mau booking kapan nih?`,
-        `Halo! Aku ${companion.name}. Yuk kita ngobrol dulu 😊`,
-        `Oke, kalau mau janjian aku available ${companion.availability} ya!`,
-      ];
-      const randomReply = replies[Math.floor(Math.random() * replies.length)];
-      
-      const replyMessage: ChatMessage = {
-        id: `reply-${Date.now()}`,
-        content: randomReply,
-        sender_id: mockCompanionUserId,
-        receiver_id: user.id,
-        created_at: new Date().toISOString(),
-        is_read: false,
-      };
-      setMessages((prev) => [...prev, replyMessage]);
-    }, 1500);
-
+    const { error } = await sendMessage(message.trim(), companionId);
+    if (!error) {
+      setMessage("");
+    } else {
+      console.error("Error sending message:", error);
+    }
     setSending(false);
   };
 
@@ -173,7 +118,14 @@ export default function CompanionChat() {
     return groups;
   }, {} as Record<string, ChatMessage[]>);
 
-  if (!companion) return null;
+  // Get companion info from database or use fallback
+  const companionName = companion?.name || companion?.full_name || "Unknown";
+  const companionAvatar = companion?.avatar_url || companion?.image || "/placeholder-avatar.png";
+  const companionCity = companion?.city || "";
+  const companionBio = companion?.bio || "";
+  const isOnline = companion?.is_online || false;
+
+  if (!companionId) return null;
 
   return (
     <div className="min-h-screen bg-background flex flex-col">
@@ -189,21 +141,27 @@ export default function CompanionChat() {
               <div className="w-10 h-10 rounded-full bg-gradient-to-br from-lavender to-pink p-0.5">
                 <div className="w-full h-full rounded-full bg-background overflow-hidden">
                   <img 
-                    src={companion.image} 
-                    alt={companion.name}
+                    src={companionAvatar} 
+                    alt={companionName}
                     className="w-full h-full object-cover"
+                    onError={(e) => {
+                      (e.target as HTMLImageElement).src = "/placeholder-avatar.png";
+                    }}
                   />
                 </div>
               </div>
-              <div className="absolute bottom-0 right-0 w-3 h-3 bg-mint rounded-full border-2 border-background" />
+              {isOnline && (
+                <div className="absolute bottom-0 right-0 w-3 h-3 bg-mint rounded-full border-2 border-background" />
+              )}
             </div>
             
             <div className="min-w-0">
               <h1 className="font-semibold text-foreground truncate">
-                {companion.name}
+                {companionName}
               </h1>
               <p className="text-xs text-muted-foreground">
-                Online • {companion.city}
+                {isOnline ? "Online" : "Offline"}
+                {companionCity && ` • ${companionCity}`}
               </p>
             </div>
           </div>
@@ -220,17 +178,22 @@ export default function CompanionChat() {
           <div className="flex flex-col items-center justify-center h-full text-center py-12">
             <div className="w-20 h-20 rounded-full overflow-hidden mb-4 border-4 border-lavender/30">
               <img 
-                src={companion.image} 
-                alt={companion.name}
+                src={companionAvatar} 
+                alt={companionName}
                 className="w-full h-full object-cover"
+                onError={(e) => {
+                  (e.target as HTMLImageElement).src = "/placeholder-avatar.png";
+                }}
               />
             </div>
             <h2 className="text-lg font-semibold text-foreground mb-2">
-              Chat dengan {companion.name}
+              Chat dengan {companionName}
             </h2>
-            <p className="text-muted-foreground text-sm max-w-xs mb-4">
-              {companion.bio}
-            </p>
+            {companionBio && (
+              <p className="text-muted-foreground text-sm max-w-xs mb-4">
+                {companionBio}
+              </p>
+            )}
             <p className="text-xs text-muted-foreground">
               Kirim pesan untuk mulai percakapan!
             </p>
@@ -266,9 +229,12 @@ export default function CompanionChat() {
                       {!isOwn && (
                         <div className="w-8 h-8 rounded-full overflow-hidden mr-2 shrink-0">
                           <img 
-                            src={companion.image} 
-                            alt={companion.name}
+                            src={companionAvatar} 
+                            alt={companionName}
                             className="w-full h-full object-cover"
+                            onError={(e) => {
+                              (e.target as HTMLImageElement).src = "/placeholder-avatar.png";
+                            }}
                           />
                         </div>
                       )}
@@ -304,7 +270,7 @@ export default function CompanionChat() {
           <Input
             value={message}
             onChange={(e) => setMessage(e.target.value)}
-            placeholder={`Kirim pesan ke ${companion.name}...`}
+            placeholder={`Kirim pesan ke ${companionName}...`}
             className="flex-1 rounded-2xl h-12 bg-muted/50"
             onKeyPress={(e) => e.key === "Enter" && handleSend()}
           />

@@ -18,22 +18,22 @@ const statusConfig: Record<
   pending: {
     label: "Menunggu Pembayaran",
     icon: <Clock className="w-3.5 h-3.5" />,
-    className: "bg-yellow-500/10 text-yellow-600 border-yellow-500/20",
+    className: "bg-muted text-muted-foreground border-border",
   },
   waiting_validation: {
     label: "Menunggu Validasi",
     icon: <Timer className="w-3.5 h-3.5" />,
-    className: "bg-blue-500/10 text-blue-600 border-blue-500/20",
+    className: "bg-yellow-500/10 text-yellow-600 border-yellow-500/20",
   },
   approved: {
-    label: "Disetujui",
+    label: "Pembayaran Berhasil",
     icon: <CheckCircle2 className="w-3.5 h-3.5" />,
     className: "bg-green-500/10 text-green-600 border-green-500/20",
   },
   rejected: {
-    label: "Ditolak",
+    label: "Pembayaran Ditolak",
     icon: <XCircle className="w-3.5 h-3.5" />,
-    className: "bg-destructive/10 text-destructive border-destructive/20",
+    className: "bg-red-500/10 text-red-600 border-red-500/20",
   },
   cancelled: {
     label: "Dibatalkan",
@@ -48,7 +48,12 @@ const statusConfig: Record<
 };
 
 export function PaymentStatusBadge({ status, size = "md" }: PaymentStatusBadgeProps) {
-  const config = statusConfig[status];
+  const fallback = {
+    label: "Status Tidak Dikenal",
+    icon: <AlertCircle className="w-3.5 h-3.5" />,
+    className: "bg-muted text-muted-foreground border-border",
+  };
+  const config = statusConfig[status] || fallback;
 
   const sizeClasses = {
     sm: "px-2 py-0.5 text-xs gap-1",

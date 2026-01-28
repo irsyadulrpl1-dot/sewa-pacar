@@ -1,0 +1,68 @@
+═══════════════════════════════════════════════════════════════
+  CARA JALANKAN MIGRATION - PENTING!
+═══════════════════════════════════════════════════════════════
+
+ERROR: "Could not find the table 'public.notifications'"
+SOLUSI: Jalankan migration SQL di bawah ini
+
+═══════════════════════════════════════════════════════════════
+  LANGKAH-LANGKAH:
+═══════════════════════════════════════════════════════════════
+
+1. BUKA Supabase Dashboard
+   → https://supabase.com/dashboard
+   → Pilih project Anda
+
+2. BUKA SQL Editor
+   → Klik menu "SQL Editor" di sidebar kiri
+
+3. BUKA FILE: RUN_THIS_MIGRATION.sql
+   → File ada di root project Anda
+   → Buka dengan text editor (VS Code, Notepad, dll)
+
+4. COPY SEMUA ISI FILE
+   → Select All (Ctrl+A)
+   → Copy (Ctrl+C)
+
+5. PASTE KE SQL EDITOR
+   → Paste (Ctrl+V) ke SQL Editor di Supabase Dashboard
+
+6. KLIK RUN
+   → Klik tombol "RUN" atau tekan Ctrl+Enter
+   → TUNGGU sampai muncul "Success" atau "Migration completed successfully!"
+
+7. REFRESH BROWSER
+   → Tekan F5 atau Ctrl+R
+   → Error akan hilang!
+
+═══════════════════════════════════════════════════════════════
+  VERIFIKASI SETELAH MIGRATION:
+═══════════════════════════════════════════════════════════════
+
+✓ Buka Supabase Dashboard → Table Editor
+  → Cari tabel "notifications" → HARUS ADA
+
+✓ Buka Authentication → Policies  
+  → Cari policies untuk "notifications" → HARUS ADA 6 policies
+
+✓ Refresh browser
+  → Buka halaman /notifications
+  → Error 404 HARUS HILANG
+
+═══════════════════════════════════════════════════════════════
+  TROUBLESHOOTING:
+═══════════════════════════════════════════════════════════════
+
+❌ Jika masih error setelah migration:
+   1. Pastikan migration benar-benar dijalankan (cek di SQL Editor history)
+   2. Pastikan tidak ada error saat migration dijalankan
+   3. Cek Table Editor → pastikan tabel "notifications" ada
+   4. Refresh browser dengan hard refresh (Ctrl+Shift+R)
+
+❌ Jika ada error saat migration:
+   - Copy error message
+   - Cek apakah enum "notification_type" sudah ada
+   - Cek apakah ada conflict dengan policy yang sudah ada
+
+═══════════════════════════════════════════════════════════════
+

@@ -3,6 +3,7 @@ import { motion, AnimatePresence } from "framer-motion";
 import { Upload, Image as ImageIcon, X, Loader2, CheckCircle2 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
+import { toast } from "sonner";
 
 interface PaymentProofUploadProps {
   onUpload: (file: File) => Promise<void>;
@@ -18,21 +19,48 @@ export function PaymentProofUpload({
   const [previewUrl, setPreviewUrl] = useState<string | null>(currentProofUrl || null);
   const [dragActive, setDragActive] = useState(false);
   const inputRef = useRef<HTMLInputElement>(null);
+  const [isPdf, setIsPdf] = useState(false);
+  const [fileName, setFileName] = useState<string | null>(null);
 
   const handleFile = async (file: File) => {
-    if (!file.type.startsWith("image/")) {
+    try {
+      const allowedTypes = ["image/jpeg", "image/jpg", "image/png", "application/pdf"];
+    const isAllowedType = file.type.startsWith("image/") || allowedTypes.includes(file.type);
+    if (!isAllowedType) {
+      toast.error("Format file tidak didukung. Gunakan JPG, PNG, atau PDF.");
       return;
     }
+      const maxSize = 5 * 1024 * 1024; // 5MB
+    if (file.size > maxSize) {
+        toast.error("Ukuran file melebihi 5MB. Silakan pilih file yang lebih kecil.");
+        return;
+      }
+      if (file.size === 0) {
+        toast.error("File kosong. Silakan pilih file yang valid.");
+      return;
+    }
+      
+    setFileName(file.name);
+    setIsPdf(file.type === "application/pdf");
 
-    // Create preview
-    const reader = new FileReader();
-    reader.onload = () => {
-      setPreviewUrl(reader.result as string);
-    };
-    reader.readAsDataURL(file);
+    if (file.type.startsWith("image/")) {
+      const reader = new FileReader();
+      reader.onload = () => {
+        setPreviewUrl(reader.result as string);
+      };
+        reader.onerror = () => {
+          toast.error("Gagal membaca file gambar. Silakan coba file lain.");
+        };
+      reader.readAsDataURL(file);
+    } else {
+      setPreviewUrl(null);
+    }
 
-    // Upload
     await onUpload(file);
+    } catch (error: any) {
+      console.error("Error in handleFile:", error);
+      toast.error(error?.message || "Terjadi kesalahan saat memproses file. Silakan coba lagi.");
+    }
   };
 
   const handleDrag = (e: React.DragEvent) => {
@@ -63,6 +91,8 @@ export function PaymentProofUpload({
 
   const clearPreview = () => {
     setPreviewUrl(null);
+    setIsPdf(false);
+    setFileName(null);
     if (inputRef.current) {
       inputRef.current.value = "";
     }
@@ -86,14 +116,14 @@ export function PaymentProofUpload({
         <input
           ref={inputRef}
           type="file"
-          accept="image/*"
+          accept="image/*,application/pdf"
           onChange={handleChange}
           className="hidden"
           id="payment-proof-input"
         />
 
         <AnimatePresence mode="wait">
-          {previewUrl ? (
+          {previewUrl || isPdf ? (
             <motion.div
               key="preview"
               initial={{ opacity: 0 }}
@@ -101,11 +131,20 @@ export function PaymentProofUpload({
               exit={{ opacity: 0 }}
               className="relative"
             >
-              <img
-                src={previewUrl}
-                alt="Bukti pembayaran"
-                className="w-full h-48 object-contain rounded-lg"
-              />
+              {isPdf ? (
+                <div className="w-full h-48 flex items-center justify-center rounded-lg bg-muted/50 border border-border">
+                  <div className="text-center">
+                    <ImageIcon className="w-6 h-6 mx-auto mb-2" />
+                    <p className="text-sm text-foreground">{fileName || "Dokumen PDF"}</p>
+                  </div>
+                </div>
+              ) : (
+                <img
+                  src={previewUrl as string}
+                  alt="Bukti pembayaran"
+                  className="w-full h-48 object-contain rounded-lg"
+                />
+              )}
               {!isUploading && !currentProofUrl && (
                 <button
                   onClick={clearPreview}
@@ -141,7 +180,7 @@ export function PaymentProofUpload({
                 {isUploading ? "Mengunggah..." : "Klik atau drop gambar di sini"}
               </p>
               <p className="text-xs text-muted-foreground mt-1">
-                Format: JPG, PNG (Max 5MB)
+                Format: JPG, PNG, PDF (Max 5MB)
               </p>
             </motion.label>
           )}
@@ -153,6 +192,7 @@ export function PaymentProofUpload({
           variant="outline"
           className="w-full"
           onClick={() => inputRef.current?.click()}
+          disabled={isUploading}
         >
           <ImageIcon className="w-4 h-4 mr-2" />
           Pilih dari Galeri

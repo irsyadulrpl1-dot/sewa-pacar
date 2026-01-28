@@ -1,14 +1,13 @@
 import { useState, useEffect } from "react";
-import { useNavigate } from "react-router-dom";
-import { motion, AnimatePresence } from "framer-motion";
-import { Eye, EyeOff, User, Mail, Lock, MapPin, Calendar, Sparkles, Heart } from "lucide-react";
-import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
-import { Label } from "@/components/ui/label";
-import { Textarea } from "@/components/ui/textarea";
+import { useNavigate, useLocation } from "react-router-dom";
 import { useToast } from "@/hooks/use-toast";
 import { useAuth } from "@/contexts/AuthContext";
+import { supabase } from "@/integrations/supabase/client";
 import { z } from "zod";
+import { AuthLayout } from "@/components/auth/AuthLayout";
+import { BrandingSection } from "@/components/auth/BrandingSection";
+import { LoginForm } from "@/components/auth/LoginForm";
+import MultiStepRegister from "@/components/register/MultiStepRegister";
 
 const loginSchema = z.object({
   email: z.string().email("Email tidak valid"),
@@ -21,6 +20,7 @@ const registerSchema = z.object({
   email: z.string().email("Email tidak valid"),
   password: z.string().min(6, "Password minimal 6 karakter"),
   confirmPassword: z.string(),
+  role: z.enum(["renter", "companion"], { message: "Pilih peran terlebih dahulu" }),
   date_of_birth: z.string().refine((val) => {
     const birthDate = new Date(val);
     const today = new Date();
@@ -42,9 +42,12 @@ export default function Auth() {
   const [loading, setLoading] = useState(false);
   const [errors, setErrors] = useState<Record<string, string>>({});
   
-  const { signIn, signUp, user } = useAuth();
+  const { signIn, signUp, user, loading: authLoading, resendVerificationEmail } = useAuth();
   const navigate = useNavigate();
+  const location = useLocation();
   const { toast } = useToast();
+  const [showResendButton, setShowResendButton] = useState(false);
+  const [resending, setResending] = useState(false);
 
   // Form state
   const [formData, setFormData] = useState({
@@ -53,18 +56,23 @@ export default function Auth() {
     email: "",
     password: "",
     confirmPassword: "",
+    role: "" as "" | "renter" | "companion",
     date_of_birth: "",
     gender: "prefer_not_to_say" as const,
     city: "",
     bio: "",
     agreeTerms: false,
+    phone: "",
+    avatar_url: "",
   });
 
   useEffect(() => {
-    if (user) {
-      navigate("/");
+    const params = new URLSearchParams(location.search);
+    const redirectTarget = params.get("redirect") || "/";
+    if (!authLoading && user) {
+      navigate(redirectTarget, { replace: true });
     }
-  }, [user, navigate]);
+  }, [user, authLoading, navigate, location.search]);
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>) => {
     const { name, value, type } = e.target;
@@ -78,6 +86,13 @@ export default function Auth() {
     // Clear error for this field
     if (errors[name]) {
       setErrors(prev => ({ ...prev, [name]: "" }));
+    }
+  };
+
+  const setRole = (role: "renter" | "companion") => {
+    setFormData(prev => ({ ...prev, role }));
+    if (errors.role) {
+      setErrors(prev => ({ ...prev, role: "" }));
     }
   };
 
@@ -108,19 +123,41 @@ export default function Auth() {
         const { error } = await signIn(formData.email, formData.password);
         
         if (error) {
+          setLoading(false);
+          
+          let errorTitle = "Gagal masuk";
+          let errorDescription = error.message;
+          
+          if (error.message.includes("Invalid login credentials") || error.message.includes("salah")) {
+            errorTitle = "Email atau password salah";
+            errorDescription = "Pastikan email dan password yang Anda masukkan benar. Jika baru mendaftar, pastikan email sudah diverifikasi.";
+          } else if (error.message.includes("Email not confirmed") || error.message.includes("belum terverifikasi")) {
+            errorTitle = "Email belum terverifikasi";
+            errorDescription = "Silakan cek email Anda dan klik link verifikasi sebelum login.";
+            setShowResendButton(true);
+          } else if (error.message.includes("User not found") || error.message.includes("tidak terdaftar")) {
+            errorTitle = "Email tidak terdaftar";
+            errorDescription = "Email ini belum terdaftar. Silakan daftar terlebih dahulu.";
+          } else if (error.message.includes("Too many requests")) {
+            errorTitle = "Terlalu banyak percobaan";
+            errorDescription = "Silakan tunggu beberapa saat sebelum mencoba lagi.";
+          }
+          
           toast({
-            title: "Gagal masuk",
-            description: error.message === "Invalid login credentials" 
-              ? "Email atau password salah" 
-              : error.message,
+            title: errorTitle,
+            description: errorDescription,
             variant: "destructive",
           });
         } else {
+          setShowResendButton(false);
           toast({
             title: "Berhasil masuk! 🎉",
             description: "Selamat datang kembali!",
           });
-          navigate("/");
+          setLoading(false);
+          const params = new URLSearchParams(location.search);
+          const redirectTarget = params.get("redirect") || "/";
+          navigate(redirectTarget, { replace: true });
         }
       } else {
         const result = registerSchema.safeParse(formData);
@@ -137,9 +174,10 @@ export default function Auth() {
           return;
         }
 
-        const { error } = await signUp(formData.email, formData.password, {
+        const { error, data } = await signUp(formData.email, formData.password, {
           full_name: formData.full_name,
           username: formData.username,
+          role: formData.role as any,
           date_of_birth: formData.date_of_birth,
           gender: formData.gender,
           city: formData.city || undefined,
@@ -147,28 +185,51 @@ export default function Auth() {
         });
 
         if (error) {
-          if (error.message.includes("already registered")) {
-            toast({
-              title: "Email sudah terdaftar",
-              description: "Coba login atau gunakan email lain",
-              variant: "destructive",
-            });
-          } else {
-            toast({
-              title: "Gagal mendaftar",
-              description: error.message,
-              variant: "destructive",
-            });
+          let errorTitle = "Gagal mendaftar";
+          let errorDescription = error.message;
+          
+          if (error.message.includes("Signups not allowed")) {
+            errorTitle = "Registrasi dinonaktifkan";
+            errorDescription = "Registrasi saat ini dinonaktifkan.";
+          } else if (error.message.includes("already registered") || error.message.includes("already exists")) {
+            errorTitle = "Email sudah terdaftar";
+            errorDescription = "Email ini sudah digunakan. Silakan login atau gunakan email lain.";
+          } else if (error.message.includes("username")) {
+            errorTitle = "Username sudah digunakan";
+            errorDescription = "Username ini sudah dipakai. Silakan pilih username lain.";
           }
+          
+          toast({
+            title: errorTitle,
+            description: errorDescription,
+            variant: "destructive",
+          });
+          setLoading(false);
+          return;
+        }
+
+        if (data?.user && !data?.session) {
+          toast({
+            title: "Pendaftaran berhasil! 📧",
+            description: "Silakan cek email Anda untuk verifikasi akun sebelum login.",
+          });
+          setTimeout(() => {
+            setIsLogin(true);
+          }, 2000);
         } else {
           toast({
             title: "Pendaftaran berhasil! 🎉",
-            description: "Akun kamu sudah aktif. Selamat datang!",
+            description: "Selamat datang!",
           });
-          navigate("/");
+          await new Promise(resolve => setTimeout(resolve, 300));
+          const params = new URLSearchParams(location.search);
+          const redirectTarget = params.get("redirect") || "/";
+          navigate(redirectTarget, { replace: true });
         }
       }
     } catch (err) {
+      console.error('Unexpected error in handleSubmit:', err);
+      setLoading(false);
       toast({
         title: "Terjadi kesalahan",
         description: "Silakan coba lagi",
@@ -179,302 +240,197 @@ export default function Auth() {
     setLoading(false);
   };
 
+  const handleResendEmail = async () => {
+    setResending(true);
+    try {
+      const { error } = await resendVerificationEmail(formData.email);
+      if (error) {
+        toast({
+          title: "Gagal mengirim email",
+          description: error.message,
+          variant: "destructive",
+        });
+      } else {
+        toast({
+          title: "Email terkirim! 📧",
+          description: "Silakan cek inbox email Anda untuk link verifikasi.",
+        });
+        setShowResendButton(false);
+      }
+    } catch (error) {
+      toast({
+        title: "Terjadi kesalahan",
+        description: "Gagal mengirim ulang email.",
+        variant: "destructive",
+      });
+    } finally {
+      setResending(false);
+    }
+  };
+
+  const handleGoogleLogin = async () => {
+    try {
+      const { error } = await supabase.auth.signInWithOAuth({
+        provider: 'google',
+        options: {
+          redirectTo: `${window.location.origin}/auth/callback`,
+        },
+      });
+      if (error) throw error;
+    } catch (error: any) {
+      toast({
+        title: "Login Gagal",
+        description: error.message,
+        variant: "destructive",
+      });
+    }
+  };
+
+  const handleGithubLogin = async () => {
+    try {
+      const { error } = await supabase.auth.signInWithOAuth({
+        provider: 'github',
+        options: {
+          redirectTo: `${window.location.origin}/auth/callback`,
+        },
+      });
+      if (error) throw error;
+    } catch (error: any) {
+      toast({
+        title: "Login Gagal",
+        description: error.message,
+        variant: "destructive",
+      });
+    }
+  };
+  
+  const handleRegisterFinalSubmit = async () => {
+    setLoading(true);
+    setErrors({});
+    try {
+      const result = registerSchema.safeParse(formData);
+      if (!result.success) {
+        const fieldErrors: Record<string, string> = {};
+        result.error.errors.forEach(err => {
+          if (err.path[0]) {
+            fieldErrors[err.path[0] as string] = err.message;
+          }
+        });
+        setErrors(fieldErrors);
+        setLoading(false);
+        return;
+      }
+      const { error, data } = await signUp(formData.email, formData.password, {
+        full_name: formData.full_name,
+        username: formData.username,
+        role: formData.role as any,
+        date_of_birth: formData.date_of_birth,
+        gender: formData.gender,
+        city: formData.city || undefined,
+        bio: formData.bio || undefined,
+      });
+      if (error) {
+        let errorTitle = "Gagal mendaftar";
+        let errorDescription = error.message;
+        if (error.message.includes("Signups not allowed")) {
+          errorTitle = "Registrasi dinonaktifkan";
+          errorDescription = "Registrasi saat ini dinonaktifkan.";
+        } else if (error.message.includes("already registered") || error.message.includes("already exists")) {
+          errorTitle = "Email sudah terdaftar";
+          errorDescription = "Email ini sudah digunakan. Silakan login atau gunakan email lain.";
+        } else if (error.message.includes("username")) {
+          errorTitle = "Username sudah digunakan";
+          errorDescription = "Username ini sudah dipakai. Silakan pilih username lain.";
+        }
+        toast({
+          title: errorTitle,
+          description: errorDescription,
+          variant: "destructive",
+        });
+        setLoading(false);
+        return;
+      }
+      if (data?.user && !data?.session) {
+        toast({
+          title: "Pendaftaran berhasil! 📧",
+          description: "Silakan cek email Anda untuk verifikasi akun sebelum login.",
+        });
+        setTimeout(() => {
+          setIsLogin(true);
+        }, 2000);
+      } else {
+        toast({
+          title: "Pendaftaran berhasil! 🎉",
+          description: "Selamat datang!",
+        });
+        await new Promise(resolve => setTimeout(resolve, 300));
+        const params = new URLSearchParams(location.search);
+        const redirectTarget = params.get("redirect") || "/";
+        navigate(redirectTarget, { replace: true });
+      }
+    } catch (err) {
+      setLoading(false);
+      toast({
+        title: "Terjadi kesalahan",
+        description: "Silakan coba lagi",
+        variant: "destructive",
+      });
+    }
+    setLoading(false);
+  };
+
   return (
-    <div className="min-h-screen bg-background flex items-center justify-center p-4">
-      {/* Animated background */}
-      <div className="absolute inset-0 overflow-hidden">
-        <div className="absolute top-1/4 left-1/4 w-72 h-72 bg-lavender/20 rounded-full blur-3xl animate-float" />
-        <div className="absolute bottom-1/4 right-1/4 w-96 h-96 bg-pink/20 rounded-full blur-3xl animate-float" style={{ animationDelay: "1s" }} />
-      </div>
-
-      <motion.div
-        initial={{ opacity: 0, y: 20 }}
-        animate={{ opacity: 1, y: 0 }}
-        className="relative w-full max-w-md"
-      >
-        {/* Header */}
-        <div className="text-center mb-8">
-          <motion.div
-            initial={{ scale: 0 }}
-            animate={{ scale: 1 }}
-            transition={{ type: "spring", delay: 0.2 }}
-            className="inline-flex items-center gap-2 mb-4"
-          >
-            <Heart className="w-8 h-8 text-primary" fill="currentColor" />
-            <span className="text-3xl font-display font-bold text-gradient">Temani</span>
-          </motion.div>
-          <p className="text-muted-foreground">
-            {isLogin ? "Masuk ke akunmu" : "Buat akun baru"}
-          </p>
-        </div>
-
-        {/* Form Card */}
-        <div className="glass-card rounded-3xl p-6 md:p-8 shadow-soft">
-          {/* Tab Switcher */}
-          <div className="flex p-1 bg-muted/50 rounded-2xl mb-6">
+    <AuthLayout branding={<BrandingSection />}>
+      {isLogin ? (
+        <LoginForm
+          isLogin={isLogin}
+          setIsLogin={setIsLogin}
+          showPassword={showPassword}
+          setShowPassword={setShowPassword}
+          loading={loading}
+          formData={formData}
+          errors={errors}
+          handleChange={handleChange}
+          handleSubmit={handleSubmit}
+          setRole={setRole}
+          setFormData={setFormData}
+          setErrors={setErrors}
+          showResendButton={showResendButton}
+          resending={resending}
+          onResendEmail={handleResendEmail}
+          onGoogleLogin={handleGoogleLogin}
+          onGithubLogin={handleGithubLogin}
+        />
+      ) : (
+        <div className="w-full max-w-md mx-auto">
+          <div className="text-center mb-8">
+            <h2 className="text-3xl font-bold mb-2 font-display text-foreground">Create Account</h2>
+            <p className="text-muted-foreground">Sign up to start your journey with us</p>
+          </div>
+          <div className="flex p-1 bg-muted/50 rounded-xl mb-8">
             <button
               type="button"
               onClick={() => setIsLogin(true)}
-              className={`flex-1 py-3 px-4 rounded-xl text-sm font-medium transition-all ${
-                isLogin 
-                  ? "bg-background text-foreground shadow-sm" 
-                  : "text-muted-foreground hover:text-foreground"
-              }`}
+              className="flex-1 py-2.5 px-4 rounded-lg text-sm font-medium transition-all text-muted-foreground hover:text-foreground"
             >
-              Masuk
+              Login
             </button>
             <button
               type="button"
               onClick={() => setIsLogin(false)}
-              className={`flex-1 py-3 px-4 rounded-xl text-sm font-medium transition-all ${
-                !isLogin 
-                  ? "bg-background text-foreground shadow-sm" 
-                  : "text-muted-foreground hover:text-foreground"
-              }`}
+              className="flex-1 py-2.5 px-4 rounded-lg text-sm font-medium transition-all bg-background text-foreground shadow-sm"
             >
-              Daftar
+              Sign Up
             </button>
           </div>
-
-          <form onSubmit={handleSubmit} className="space-y-4">
-            <AnimatePresence mode="wait">
-              {!isLogin && (
-                <motion.div
-                  initial={{ opacity: 0, height: 0 }}
-                  animate={{ opacity: 1, height: "auto" }}
-                  exit={{ opacity: 0, height: 0 }}
-                  className="space-y-4"
-                >
-                  {/* Full Name */}
-                  <div className="space-y-2">
-                    <Label htmlFor="full_name">Nama Lengkap *</Label>
-                    <div className="relative">
-                      <User className="absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 text-muted-foreground" />
-                      <Input
-                        id="full_name"
-                        name="full_name"
-                        placeholder="Masukkan nama lengkap"
-                        value={formData.full_name}
-                        onChange={handleChange}
-                        className="pl-10 rounded-xl h-12"
-                      />
-                    </div>
-                    {errors.full_name && (
-                      <p className="text-sm text-destructive">{errors.full_name}</p>
-                    )}
-                  </div>
-
-                  {/* Username */}
-                  <div className="space-y-2">
-                    <Label htmlFor="username">Username *</Label>
-                    <div className="relative">
-                      <span className="absolute left-3 top-1/2 -translate-y-1/2 text-muted-foreground">@</span>
-                      <Input
-                        id="username"
-                        name="username"
-                        placeholder="username_kamu"
-                        value={formData.username}
-                        onChange={handleChange}
-                        className="pl-10 rounded-xl h-12"
-                      />
-                    </div>
-                    {errors.username && (
-                      <p className="text-sm text-destructive">{errors.username}</p>
-                    )}
-                  </div>
-
-                  {/* Date of Birth */}
-                  <div className="space-y-2">
-                    <Label htmlFor="date_of_birth">Tanggal Lahir * (18+)</Label>
-                    <div className="relative">
-                      <Calendar className="absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 text-muted-foreground" />
-                      <Input
-                        id="date_of_birth"
-                        name="date_of_birth"
-                        type="date"
-                        value={formData.date_of_birth}
-                        onChange={handleChange}
-                        className="pl-10 rounded-xl h-12"
-                      />
-                    </div>
-                    {errors.date_of_birth && (
-                      <p className="text-sm text-destructive">{errors.date_of_birth}</p>
-                    )}
-                  </div>
-
-                  {/* Gender */}
-                  <div className="space-y-2">
-                    <Label htmlFor="gender">Gender</Label>
-                    <select
-                      id="gender"
-                      name="gender"
-                      value={formData.gender}
-                      onChange={handleChange}
-                      className="w-full h-12 px-3 rounded-xl bg-background border border-input text-foreground"
-                    >
-                      <option value="prefer_not_to_say">Pilih gender</option>
-                      <option value="male">Laki-laki</option>
-                      <option value="female">Perempuan</option>
-                      <option value="other">Lainnya</option>
-                    </select>
-                  </div>
-
-                  {/* City */}
-                  <div className="space-y-2">
-                    <Label htmlFor="city">Kota</Label>
-                    <div className="relative">
-                      <MapPin className="absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 text-muted-foreground" />
-                      <Input
-                        id="city"
-                        name="city"
-                        placeholder="Jakarta, Bandung, dll"
-                        value={formData.city}
-                        onChange={handleChange}
-                        className="pl-10 rounded-xl h-12"
-                      />
-                    </div>
-                  </div>
-
-                  {/* Bio */}
-                  <div className="space-y-2">
-                    <Label htmlFor="bio">Bio singkat</Label>
-                    <Textarea
-                      id="bio"
-                      name="bio"
-                      placeholder="Ceritakan sedikit tentang dirimu..."
-                      value={formData.bio}
-                      onChange={handleChange}
-                      className="rounded-xl min-h-[80px]"
-                    />
-                  </div>
-                </motion.div>
-              )}
-            </AnimatePresence>
-
-            {/* Email */}
-            <div className="space-y-2">
-              <Label htmlFor="email">Email *</Label>
-              <div className="relative">
-                <Mail className="absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 text-muted-foreground" />
-                <Input
-                  id="email"
-                  name="email"
-                  type="email"
-                  placeholder="email@example.com"
-                  value={formData.email}
-                  onChange={handleChange}
-                  className="pl-10 rounded-xl h-12"
-                />
-              </div>
-              {errors.email && (
-                <p className="text-sm text-destructive">{errors.email}</p>
-              )}
-            </div>
-
-            {/* Password */}
-            <div className="space-y-2">
-              <Label htmlFor="password">Password *</Label>
-              <div className="relative">
-                <Lock className="absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 text-muted-foreground" />
-                <Input
-                  id="password"
-                  name="password"
-                  type={showPassword ? "text" : "password"}
-                  placeholder="••••••••"
-                  value={formData.password}
-                  onChange={handleChange}
-                  className="pl-10 pr-10 rounded-xl h-12"
-                />
-                <button
-                  type="button"
-                  onClick={() => setShowPassword(!showPassword)}
-                  className="absolute right-3 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground"
-                >
-                  {showPassword ? <EyeOff className="w-5 h-5" /> : <Eye className="w-5 h-5" />}
-                </button>
-              </div>
-              {errors.password && (
-                <p className="text-sm text-destructive">{errors.password}</p>
-              )}
-            </div>
-
-            {/* Confirm Password (Register only) */}
-            <AnimatePresence>
-              {!isLogin && (
-                <motion.div
-                  initial={{ opacity: 0, height: 0 }}
-                  animate={{ opacity: 1, height: "auto" }}
-                  exit={{ opacity: 0, height: 0 }}
-                  className="space-y-2"
-                >
-                  <Label htmlFor="confirmPassword">Konfirmasi Password *</Label>
-                  <div className="relative">
-                    <Lock className="absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 text-muted-foreground" />
-                    <Input
-                      id="confirmPassword"
-                      name="confirmPassword"
-                      type={showPassword ? "text" : "password"}
-                      placeholder="••••••••"
-                      value={formData.confirmPassword}
-                      onChange={handleChange}
-                      className="pl-10 rounded-xl h-12"
-                    />
-                  </div>
-                  {errors.confirmPassword && (
-                    <p className="text-sm text-destructive">{errors.confirmPassword}</p>
-                  )}
-
-                  {/* Terms */}
-                  <div className="flex items-start gap-3 pt-2">
-                    <input
-                      id="agreeTerms"
-                      name="agreeTerms"
-                      type="checkbox"
-                      checked={formData.agreeTerms}
-                      onChange={handleChange}
-                      className="mt-1 w-4 h-4 rounded border-input"
-                    />
-                    <Label htmlFor="agreeTerms" className="text-sm text-muted-foreground leading-relaxed">
-                      Saya menyetujui <a href="/rules" className="text-primary hover:underline">Syarat & Ketentuan</a> serta berusia 18 tahun ke atas
-                    </Label>
-                  </div>
-                  {errors.agreeTerms && (
-                    <p className="text-sm text-destructive">{errors.agreeTerms}</p>
-                  )}
-                </motion.div>
-              )}
-            </AnimatePresence>
-
-            {/* Submit Button */}
-            <Button
-              type="submit"
-              variant="gradient"
-              size="lg"
-              className="w-full rounded-xl h-12 mt-6"
-              disabled={loading}
-            >
-              {loading ? (
-                <span className="flex items-center gap-2">
-                  <Sparkles className="w-5 h-5 animate-spin" />
-                  {isLogin ? "Masuk..." : "Mendaftar..."}
-                </span>
-              ) : (
-                <span className="flex items-center gap-2">
-                  <Sparkles className="w-5 h-5" />
-                  {isLogin ? "Masuk" : "Daftar Sekarang"}
-                </span>
-              )}
-            </Button>
-          </form>
+          <MultiStepRegister
+            data={formData}
+            setData={setFormData}
+            loading={loading}
+            onFinalSubmit={handleRegisterFinalSubmit}
+          />
         </div>
-
-        {/* Back to home */}
-        <p className="text-center mt-6 text-sm text-muted-foreground">
-          <a href="/" className="hover:text-primary transition-colors">
-            ← Kembali ke beranda
-          </a>
-        </p>
-      </motion.div>
-    </div>
+      )}
+    </AuthLayout>
   );
 }

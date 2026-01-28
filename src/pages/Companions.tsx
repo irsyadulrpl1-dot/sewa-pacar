@@ -305,7 +305,7 @@ const Companions = () => {
       )}
 
       {/* Search & Filters */}
-      <section className="pb-4 md:pb-8 sticky top-14 md:top-0 z-30 bg-background/95 backdrop-blur-sm">
+      <section className="pb-4 md:pb-8 sticky top-14 md:top-24 z-30 bg-background/95 backdrop-blur-sm">
         <div className="container mx-auto px-4">
           <motion.div
             initial={{ opacity: 0, y: 20 }}
@@ -405,6 +405,28 @@ const Companions = () => {
               <p className="text-muted-foreground text-base md:text-lg">
                 Waduh, nggak ada yang cocok nih bestie. Coba ubah filter ya! 😅
               </p>
+            </div>
+          )}
+          {!user && (
+            <div className="mt-8 md:mt-10 flex flex-col items-center gap-3">
+              <Badge className="bg-primary/10 text-primary">Preview Mode</Badge>
+              <p className="text-sm text-muted-foreground">Login diperlukan untuk melihat detail dan melakukan booking</p>
+              <div className="flex flex-col md:flex-row gap-3 w-full max-w-md">
+                <Button 
+                  variant="gradient" 
+                  className="rounded-xl flex-1"
+                  onClick={() => navigate("/auth")}
+                >
+                  Daftar Sekarang
+                </Button>
+                <Button 
+                  variant="outline" 
+                  className="rounded-xl flex-1"
+                  onClick={() => navigate(`/auth?redirect=${encodeURIComponent("/companions")}`)}
+                >
+                  Login untuk Lihat Detail
+                </Button>
+              </div>
             </div>
           )}
         </div>

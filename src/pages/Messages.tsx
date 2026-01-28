@@ -1,18 +1,21 @@
-import { useEffect, useState, useMemo } from "react";
+import { useEffect, useState, useMemo, useCallback } from "react";
 import { useNavigate, Link } from "react-router-dom";
 import { motion } from "framer-motion";
-import { MessageCircle, User, Sparkles, Search, X } from "lucide-react";
+import { MessageCircle, User, Sparkles, Search, X, WifiOff } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
 import { Input } from "@/components/ui/input";
 import { MobileLayout } from "@/components/MobileLayout";
 import { useAuth } from "@/contexts/AuthContext";
 import { useMessages } from "@/hooks/useMessages";
-import { companions } from "@/data/companions";
+import { useCompanions } from "@/hooks/useCompanions";
+import { supabase } from "@/integrations/supabase/client";
+import { toast } from "sonner";
 
 export default function Messages() {
   const { user } = useAuth();
   const navigate = useNavigate();
-  const { conversations, loading } = useMessages();
+  const { conversations, loading, isConnected } = useMessages();
+  const { companions: companionProfiles } = useCompanions({ limit: 50 }); // Fetch companions from database
   const [searchQuery, setSearchQuery] = useState("");
 
   useEffect(() => {
@@ -21,23 +24,23 @@ export default function Messages() {
     }
   }, [user, navigate]);
 
-  // Create companion conversations for display
+  // Create companion conversations from database
   const companionConversations = useMemo(() => {
-    return companions.map(companion => ({
-      id: `companion-${companion.id}`,
+    return companionProfiles.map(companion => ({
+      id: companion.user_id || companion.id,
       type: "companion" as const,
-      partnerId: companion.id,
-      name: companion.name,
-      avatar: companion.image,
-      city: companion.city,
-      isOnline: true,
+      partnerId: companion.user_id || companion.id,
+      name: companion.name || companion.full_name || "Unknown",
+      avatar: companion.avatar_url || companion.image || null,
+      city: companion.city || null,
+      isOnline: companion.is_online || false,
       lastMessage: null as string | null,
       lastMessageTime: null as string | null,
       unreadCount: 0,
     }));
-  }, []);
+  }, [companionProfiles]);
 
-  // Combine real conversations with companion conversations
+  // Combine real conversations with companion conversations from database
   const allConversations = useMemo(() => {
     const realConvos = conversations.map(convo => ({
       id: convo.partnerId,
@@ -47,13 +50,22 @@ export default function Messages() {
       avatar: convo.partner?.avatar_url || null,
       city: convo.partner?.city || null,
       isOnline: convo.partner?.is_online || false,
-      lastMessage: convo.lastMessage?.content || null,
+      lastMessage: convo.lastMessage?.deleted_for_all 
+        ? "Pesan ini telah dihapus" 
+        : convo.lastMessage?.content || null,
       lastMessageTime: convo.lastMessage?.created_at || null,
       unreadCount: convo.unreadCount,
       isSentByMe: convo.lastMessage?.sender_id === user?.id,
+      hasBooking: convo.hasBooking || false, // Flag for booking chat
     }));
 
-    return [...realConvos, ...companionConversations];
+    // Filter out companions that already have conversations
+    const companionIdsWithMessages = new Set(realConvos.map(c => c.partnerId));
+    const companionsWithoutMessages = companionConversations.filter(
+      c => !companionIdsWithMessages.has(c.partnerId)
+    );
+
+    return [...realConvos, ...companionsWithoutMessages];
   }, [conversations, companionConversations, user?.id]);
 
   // Filter conversations based on search
@@ -67,6 +79,29 @@ export default function Messages() {
       convo.lastMessage?.toLowerCase().includes(query)
     );
   }, [allConversations, searchQuery]);
+
+  const checkBookingBeforeOpen = useCallback(async (partnerId: string) => {
+    if (!user || !partnerId) {
+      navigate("/auth");
+      return;
+    }
+    try {
+      const { data: bookings } = await (supabase as any)
+        .from("bookings")
+        .select("id, status, created_at, user_id, companion_id")
+        .or(`and(user_id.eq.${user.id},companion_id.eq.${partnerId}),and(user_id.eq.${partnerId},companion_id.eq.${user.id})`)
+        .order("created_at", { ascending: false });
+
+      const latest = bookings?.[0];
+      if (latest?.status === "cancelled") {
+        toast.error("Booking telah dibatalkan. Chat ditutup.");
+        return;
+      }
+      navigate(`/chat/${partnerId}`);
+    } catch {
+      navigate(`/chat/${partnerId}`);
+    }
+  }, [user, navigate]);
 
   const formatTime = (dateString: string | null) => {
     if (!dateString) return "";
@@ -87,9 +122,7 @@ export default function Messages() {
   };
 
   const getConversationLink = (convo: typeof filteredConversations[0]) => {
-    if (convo.type === "companion") {
-      return `/companion-chat/${convo.partnerId}`;
-    }
+    // All conversations now use real user_id, so we can use the same route
     return `/chat/${convo.partnerId}`;
   };
 
@@ -171,9 +204,9 @@ export default function Messages() {
                 animate={{ opacity: 1, y: 0 }}
                 transition={{ delay: index * 0.03 }}
               >
-                <Link 
-                  to={getConversationLink(convo)}
-                  className="block glass-card rounded-2xl p-4 hover:bg-muted/30 transition-colors"
+                <button
+                  onClick={() => checkBookingBeforeOpen(convo.partnerId)}
+                  className="w-full text-left block glass-card rounded-2xl p-4 hover:bg-muted/30 transition-colors"
                 >
                   <div className="flex items-center gap-4">
                     {/* Avatar */}
@@ -206,6 +239,11 @@ export default function Messages() {
                           {convo.type === "companion" && (
                             <Badge variant="secondary" className="text-[10px] px-1.5 py-0">
                               Talent
+                            </Badge>
+                          )}
+                          {'hasBooking' in convo && convo.hasBooking && (
+                            <Badge variant="default" className="text-[10px] px-1.5 py-0 bg-primary/10 text-primary border-primary/20">
+                              📅 Dari Booking
                             </Badge>
                           )}
                         </div>
@@ -241,7 +279,7 @@ export default function Messages() {
                       )}
                     </div>
                   </div>
-                </Link>
+                </button>
               </motion.div>
             ))
           )}

@@ -1,0 +1,60 @@
+═══════════════════════════════════════════════════════════════
+  CARA FIX ERROR: Table 'bookings' Tidak Ditemukan
+═══════════════════════════════════════════════════════════════
+
+ERROR YANG MUNCUL:
+"Could not find the table 'public.bookings' in the schema cache"
+
+═══════════════════════════════════════════════════════════════
+  LANGKAH-LANGKAH:
+═══════════════════════════════════════════════════════════════
+
+1. BUKA SUPABASE DASHBOARD
+   → https://supabase.com/dashboard
+   → Pilih project Anda
+   → Klik "SQL Editor" di sidebar kiri
+
+2. BUAT QUERY BARU
+   → Klik tombol "New Query" (atau icon +)
+
+3. COPY PASTE SCRIPT
+   → Buka file: QUICK_FIX_BOOKINGS.sql
+   → Copy SEMUA isi file tersebut
+   → Paste di SQL Editor
+
+4. JALANKAN SCRIPT
+   → Klik tombol "Run" (atau tekan Ctrl+Enter / Cmd+Enter)
+   → Tunggu sampai selesai (biasanya beberapa detik)
+
+5. VERIFIKASI
+   → Scroll ke bawah, lihat hasil query terakhir
+   → Harus muncul: "Table created successfully!"
+   → Jika muncul error, screenshot dan cek bagian mana yang error
+
+═══════════════════════════════════════════════════════════════
+  SETELAH MIGRATION BERHASIL:
+═══════════════════════════════════════════════════════════════
+
+1. REFRESH browser aplikasi Anda (F5 atau Ctrl+R)
+2. COBA BOOKING LAGI dari awal
+3. Step 3 seharusnya sudah bisa lanjut ke Step 4
+
+═══════════════════════════════════════════════════════════════
+  TROUBLESHOOTING:
+═══════════════════════════════════════════════════════════════
+
+❌ Error: "type booking_status already exists"
+   ✅ IGNORE - Ini normal, berarti enum sudah ada sebelumnya
+
+❌ Error: "policy already exists"  
+   ✅ IGNORE - Script sudah handle dengan DROP POLICY IF EXISTS
+
+❌ Error: "function update_updated_at_column does not exist"
+   ✅ Script akan membuat function tersebut otomatis
+
+❌ Error: "relation payments does not exist"
+   ✅ Hapus baris: payment_id UUID REFERENCES public.payments(id)
+   ✅ Ganti dengan: payment_id UUID
+
+═══════════════════════════════════════════════════════════════
+

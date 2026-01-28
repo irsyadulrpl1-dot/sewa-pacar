@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useMemo } from "react";
 import { useNavigate } from "react-router-dom";
 import { motion } from "framer-motion";
 import { MapPin, User, UserPlus, Clock, Check, Sparkles, Heart, RefreshCw, Search, SlidersHorizontal, X, Users } from "lucide-react";
@@ -7,11 +7,11 @@ import { Badge } from "@/components/ui/badge";
 import { Input } from "@/components/ui/input";
 import { MobileLayout } from "@/components/MobileLayout";
 import { CompanionCard } from "@/components/CompanionCard";
-import { companions } from "@/data/companions";
 import { useAuth } from "@/contexts/AuthContext";
 import { useSearch, SafeProfile } from "@/hooks/useSearch";
 import { useFriends } from "@/hooks/useFriends";
 import { useProfile } from "@/hooks/useProfile";
+import { useCompanions, CompanionFilters } from "@/hooks/useCompanions";
 import { useToast } from "@/hooks/use-toast";
 import {
   Select,
@@ -41,7 +41,27 @@ export default function FindFriends() {
   const [sortBy, setSortBy] = useState("rating");
   const [showFilters, setShowFilters] = useState(false);
 
-  const cities = [...new Set(companions.map((c) => c.city))];
+  // Build filters for useCompanions hook
+  const companionFilters: CompanionFilters = {
+    search: searchTerm || undefined,
+    city: cityFilter !== "all" ? cityFilter : undefined,
+    sort: sortBy === "rating" ? "rating_desc" : 
+          sortBy === "price-low" ? "price_asc" : 
+          sortBy === "price-high" ? "price_desc" : 
+          "created_at",
+  };
+
+  // Fetch companions from database
+  const { companions, loading: companionsLoading } = useCompanions(companionFilters);
+
+  // Get unique cities from fetched companions
+  const cities = useMemo(() => {
+    const citySet = new Set<string>();
+    companions.forEach(c => {
+      if (c.city) citySet.add(c.city);
+    });
+    return Array.from(citySet).sort();
+  }, [companions]);
 
   useEffect(() => {
     if (!user) {
@@ -59,20 +79,39 @@ export default function FindFriends() {
     getRecommendedUsers(profile);
   };
 
-  const filteredCompanions = companions
-    .filter((companion) => {
-      const matchesSearch =
-        companion.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
-        companion.city.toLowerCase().includes(searchTerm.toLowerCase());
-      const matchesCity = cityFilter === "all" || companion.city === cityFilter;
-      return matchesSearch && matchesCity;
-    })
-    .sort((a, b) => {
-      if (sortBy === "rating") return b.rating - a.rating;
-      if (sortBy === "price-low") return a.hourlyRate - b.hourlyRate;
-      if (sortBy === "price-high") return b.hourlyRate - a.hourlyRate;
-      return 0;
-    });
+  // Companions are already filtered and sorted by useCompanions hook
+  // Additional client-side filtering if needed
+  const filteredCompanions = useMemo(() => {
+    let result = [...companions];
+
+    // Additional search filtering (useCompanions already does server-side search, but we can refine)
+    if (searchTerm) {
+      const query = searchTerm.toLowerCase();
+      result = result.filter(
+        (companion) =>
+          (companion.name || companion.full_name || "").toLowerCase().includes(query) ||
+          (companion.city || "").toLowerCase().includes(query) ||
+          (companion.personality || []).some((p) => p.toLowerCase().includes(query)) ||
+          (companion.activities || []).some((a) => a.toLowerCase().includes(query))
+      );
+    }
+
+    // Additional city filtering (useCompanions already does server-side, but we can refine)
+    if (cityFilter !== "all") {
+      result = result.filter((companion) => companion.city === cityFilter);
+    }
+
+    // Additional sorting (useCompanions already does server-side, but we can refine)
+    if (sortBy === "rating") {
+      result.sort((a, b) => b.rating - a.rating);
+    } else if (sortBy === "price-low") {
+      result.sort((a, b) => (a.hourly_rate || a.hourlyRate || 0) - (b.hourly_rate || b.hourlyRate || 0));
+    } else if (sortBy === "price-high") {
+      result.sort((a, b) => (b.hourly_rate || b.hourlyRate || 0) - (a.hourly_rate || a.hourlyRate || 0));
+    }
+
+    return result;
+  }, [companions, searchTerm, cityFilter, sortBy]);
 
   const handleFriendAction = async (targetProfile: SafeProfile) => {
     const status = getFriendStatus(targetProfile.user_id);
@@ -354,11 +393,15 @@ export default function FindFriends() {
                   </SelectTrigger>
                   <SelectContent>
                     <SelectItem value="all">Semua Kota</SelectItem>
-                    {cities.map((city) => (
-                      <SelectItem key={city} value={city}>
-                        {city}
-                      </SelectItem>
-                    ))}
+                    {cities.length > 0 ? (
+                      cities.map((city) => (
+                        <SelectItem key={city} value={city}>
+                          {city}
+                        </SelectItem>
+                      ))
+                    ) : (
+                      <SelectItem value="all" disabled>Tidak ada kota</SelectItem>
+                    )}
                   </SelectContent>
                 </Select>
 
@@ -376,28 +419,54 @@ export default function FindFriends() {
             )}
 
             {/* Quick filter chips */}
-            <div className="flex gap-2 overflow-x-auto pb-2 -mx-4 px-4 scrollbar-hide">
-              {cities.slice(0, 4).map((city) => (
-                <button
-                  key={city}
-                  onClick={() => setCityFilter(cityFilter === city ? "all" : city)}
-                  className={`px-4 py-2 rounded-full text-sm font-medium whitespace-nowrap transition-all ${
-                    cityFilter === city
-                      ? "bg-gradient-to-r from-lavender to-pink text-primary-foreground"
-                      : "bg-card border border-border text-muted-foreground"
-                  }`}
-                >
-                  {city}
-                </button>
-              ))}
-            </div>
+            {cities.length > 0 && (
+              <div className="flex gap-2 overflow-x-auto pb-2 -mx-4 px-4 scrollbar-hide">
+                {cities.slice(0, 4).map((city) => (
+                  <button
+                    key={city}
+                    onClick={() => setCityFilter(cityFilter === city ? "all" : city)}
+                    className={`px-4 py-2 rounded-full text-sm font-medium whitespace-nowrap transition-all ${
+                      cityFilter === city
+                        ? "bg-gradient-to-r from-lavender to-pink text-primary-foreground"
+                        : "bg-card border border-border text-muted-foreground"
+                    }`}
+                  >
+                    {city}
+                  </button>
+                ))}
+              </div>
+            )}
           </div>
 
           {/* Companions Grid */}
-          {filteredCompanions.length > 0 ? (
+          {companionsLoading ? (
+            <div className="grid grid-cols-2 gap-3">
+              {[1, 2, 3, 4].map((i) => (
+                <div key={i} className="aspect-[3/4] bg-muted rounded-2xl animate-pulse" />
+              ))}
+            </div>
+          ) : filteredCompanions.length > 0 ? (
             <div className="grid grid-cols-2 gap-3">
               {filteredCompanions.map((companion, index) => (
-                <CompanionCard key={companion.id} companion={companion} index={index} />
+                <CompanionCard 
+                  key={companion.user_id || companion.id} 
+                  companion={{
+                    id: companion.user_id || companion.id,
+                    name: companion.name || companion.full_name,
+                    full_name: companion.full_name,
+                    age: companion.age,
+                    city: companion.city,
+                    rating: companion.rating,
+                    hourlyRate: companion.hourlyRate,
+                    hourly_rate: companion.hourly_rate,
+                    image: companion.image,
+                    avatar_url: companion.avatar_url,
+                    bio: companion.bio,
+                    activities: companion.activities,
+                  }} 
+                  index={index}
+                  badge={companion.is_verified ? "verified" : undefined}
+                />
               ))}
             </div>
           ) : (

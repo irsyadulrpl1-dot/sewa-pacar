@@ -1,7 +1,7 @@
 import { useState, useEffect } from "react";
 import { useParams, useNavigate } from "react-router-dom";
 import { motion } from "framer-motion";
-import { MapPin, User, Sparkles, BadgeCheck, MessageCircle, UserPlus, UserMinus, Clock, Check, Calendar } from "lucide-react";
+import { MapPin, User, Sparkles, BadgeCheck, MessageCircle, Clock, Check, Calendar, Star } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Card, CardContent } from "@/components/ui/card";
@@ -9,7 +9,6 @@ import { MobileLayout } from "@/components/MobileLayout";
 import { useAuth } from "@/contexts/AuthContext";
 import { useToast } from "@/hooks/use-toast";
 import { supabase } from "@/integrations/supabase/client";
-import { useFollowCounts, useFollowStatus } from "@/hooks/useFollows";
 import { useQuery } from "@tanstack/react-query";
 import { formatCount } from "@/lib/formatters";
  
@@ -29,7 +28,6 @@ interface PublicProfile {
   gender: string | null;
 }
 
-// Mock profile info - in real app this would come from database
 const getMockProfileInfo = (profile: PublicProfile) => ({
   age: 22,
   hourlyRate: 250000,
@@ -48,9 +46,8 @@ export default function UserProfile() {
   const { user } = useAuth();
   const navigate = useNavigate();
   const { toast } = useToast();
-  const { followersCount, followingCount } = useFollowCounts(userId || "");
-  const { isFollowing, toggleFollow, isLoading: isFollowLoading } = useFollowStatus(userId || "");
   const [activeTab, setActiveTab] = useState("info");
+  const [extras, setExtras] = useState<{ availability?: string; hourly_rate?: number; personality?: string[]; activities?: string[]; packages?: { name: string; duration: string; price: number }[] } | null>(null);
   
 
   // Redirect to own profile if viewing self
@@ -78,15 +75,19 @@ export default function UserProfile() {
     enabled: !!userId,
   });
 
-  // Hapus fitur postingan: tidak lagi mengambil posts
-
-  const handleFollow = async () => {
-    if (!user) {
-      navigate("/auth");
-      return;
-    }
-    await toggleFollow();
-  };
+  const { data: profileExtras } = useQuery({
+    queryKey: ["profile-extras", userId],
+    queryFn: async () => {
+      if (!userId) return null;
+      const { data } = await supabase
+        .from("profiles")
+        .select("availability,hourly_rate,personality,activities,packages")
+        .eq("user_id", userId)
+        .maybeSingle();
+      return data as any;
+    },
+    enabled: !!userId,
+  });
 
   const handleChat = () => {
     if (!user) {
@@ -129,7 +130,18 @@ export default function UserProfile() {
     );
   }
 
-  const profileInfo = getMockProfileInfo(profile);
+  const profileInfo = (() => {
+    const mock = getMockProfileInfo(profile);
+    const merged = {
+      age: mock.age,
+      hourlyRate: profileExtras?.hourly_rate ?? mock.hourlyRate,
+      availability: profileExtras?.availability ?? mock.availability,
+      personality: profileExtras?.personality ?? mock.personality,
+      activities: profileExtras?.activities ?? mock.activities,
+      packages: profileExtras?.packages ?? mock.packages,
+    };
+    return merged;
+  })();
 
   return (
     <MobileLayout showFooter={false}>
@@ -173,19 +185,6 @@ export default function UserProfile() {
           </div>
           <p className="text-muted-foreground">@{profile.username || "user"}</p>
 
-          {/* Followers/Following Stats */}
-          <div className="flex items-center justify-center gap-6 mt-4">
-            <div className="text-center">
-              <p className="text-xl font-bold text-foreground">{formatCount(followersCount)}</p>
-              <p className="text-xs text-muted-foreground">Followers</p>
-            </div>
-            <div className="w-px h-8 bg-border" />
-            <div className="text-center">
-              <p className="text-xl font-bold text-foreground">{formatCount(followingCount)}</p>
-              <p className="text-xs text-muted-foreground">Following</p>
-            </div>
-          </div>
-
           {/* Location & Age */}
           <div className="flex items-center justify-center gap-4 mt-3 text-sm">
             <span className="flex items-center gap-1 text-muted-foreground">
@@ -207,6 +206,11 @@ export default function UserProfile() {
               {profileInfo.availability}
             </span>
           </div>
+          {profileInfo.hourlyRate && (
+            <div className="mt-3 text-primary font-bold text-lg">
+              {new Intl.NumberFormat("id-ID", { style: "currency", currency: "IDR", minimumFractionDigits: 0 }).format(profileInfo.hourlyRate)}/jam
+            </div>
+          )}
 
           {/* Bio */}
           {profile.bio && (
@@ -238,30 +242,12 @@ export default function UserProfile() {
         {/* Action Buttons */}
         <div className="flex gap-3 justify-center mb-6">
           <Button
-            variant={isFollowing ? "outline" : "gradient"}
-            onClick={handleFollow}
-            disabled={isFollowLoading}
-            className="rounded-xl"
-          >
-            {isFollowing ? (
-              <>
-                <UserMinus className="w-4 h-4 mr-2" />
-                Berhenti Ikuti
-              </>
-            ) : (
-              <>
-                <UserPlus className="w-4 h-4 mr-2" />
-                Ikuti
-              </>
-            )}
-          </Button>
-          <Button
-            variant="soft"
+            variant="gradient"
             onClick={handleChat}
-            className="rounded-xl"
+            className="rounded-xl px-6"
           >
             <MessageCircle className="w-4 h-4 mr-2" />
-            Pesan
+            Kirim Pesan
           </Button>
         </div>
 

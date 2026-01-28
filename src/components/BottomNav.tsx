@@ -1,19 +1,25 @@
 import { Link, useLocation } from "react-router-dom";
 import { motion } from "framer-motion";
-import { Home, Users, MessageCircle, ScrollText, User } from "lucide-react";
+import { Home, Users, MessageCircle, ScrollText, User, CalendarCheck } from "lucide-react";
 import { useAuth } from "@/contexts/AuthContext";
-
-const navItems = [
-  { href: "/", label: "Home", icon: Home },
-  { href: "/find-friends", label: "Explore", icon: Users, requiresAuth: true },
-  { href: "/messages", label: "Chat", icon: MessageCircle, requiresAuth: true },
-  { href: "/rules", label: "Aturan", icon: ScrollText },
-  { href: "/profile", label: "Profil", icon: User, requiresAuth: true },
-];
+import { useProfile } from "@/hooks/useProfile";
 
 export function BottomNav() {
   const location = useLocation();
   const { user } = useAuth();
+  const { profile } = useProfile();
+  const role: "renter" | "companion" | null =
+    profile?.role === "renter" || profile?.role === "companion" ? (profile.role as "renter" | "companion") : null;
+
+  const navItems = [
+    { href: "/", label: "Home", icon: Home },
+    ...(role === "companion"
+      ? [{ href: "/companion/bookings", label: "Booking", icon: CalendarCheck, requiresAuth: true }]
+      : [{ href: "/find-friends", label: "Explore", icon: Users, requiresAuth: true }]),
+    { href: "/messages", label: "Chat", icon: MessageCircle, requiresAuth: true },
+    { href: "/rules", label: "Aturan", icon: ScrollText },
+    { href: "/profile", label: "Profil", icon: User, requiresAuth: true },
+  ];
 
   return (
     <nav className="fixed bottom-0 left-0 right-0 z-[100] md:hidden safe-area-bottom">

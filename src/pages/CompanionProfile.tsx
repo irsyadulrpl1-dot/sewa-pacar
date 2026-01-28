@@ -1,56 +1,158 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { motion } from "framer-motion";
-import { useParams, Link, useNavigate } from "react-router-dom";
+import { useParams, useNavigate, useLocation } from "react-router-dom";
 import { MobileLayout } from "@/components/MobileLayout";
 import { Button } from "@/components/ui/button";
-import { companions } from "@/data/companions";
-import {
-  Star,
-  MapPin,
-  Clock,
-  MessageCircle,
-  Heart,
-  ChevronLeft,
-  Check,
-  CreditCard,
-} from "lucide-react";
+import { ChevronLeft } from "lucide-react";
 import { useAuth } from "@/contexts/AuthContext";
 import { toast } from "sonner";
-import { Badge } from "@/components/ui/badge";
-import { BookingPaymentDialog } from "@/components/payments/BookingPaymentDialog";
-import type { Payment } from "@/hooks/usePayments";
+import { BookingWizard } from "@/components/booking/BookingWizard";
+import { supabase } from "@/integrations/supabase/client";
+import { useProfile } from "@/hooks/useProfile";
+
+// New Components
+import { ProfileHeader } from "@/components/companion-profile/ProfileHeader";
+import { ProfileActions } from "@/components/companion-profile/ProfileActions";
+import { ProfileInfo } from "@/components/companion-profile/ProfileInfo";
+import { ServiceDetails } from "@/components/companion-profile/ServiceDetails";
+import { ScheduleInfo } from "@/components/companion-profile/ScheduleInfo";
+import { ProfileReviews } from "@/components/companion-profile/ProfileReviews";
 
 const CompanionProfile = () => {
   const { id } = useParams();
   const { user } = useAuth();
+  const { profile: myProfile } = useProfile();
   const navigate = useNavigate();
-  const [showPaymentDialog, setShowPaymentDialog] = useState(false);
-  const [selectedPackage, setSelectedPackage] = useState<{
+  const location = useLocation();
+  const [isBookingWizardOpen, setIsBookingWizardOpen] = useState(false);
+  const [loading, setLoading] = useState(false);
+  const [dynamicCompanion, setDynamicCompanion] = useState<{
+    id: string;
     name: string;
-    duration: string;
-    price: number;
+    age: number;
+    city: string;
+    rating: number;
+    hourlyRate: number;
+    image: string;
+    bio: string;
+    description: string;
+    personality: string[];
+    activities: string[];
+    availability: string;
+    packages: { name: string; duration: string; price: number }[];
+    is_online?: boolean;
   } | null>(null);
-  const companion = companions.find((c) => c.id === id);
 
-  const formatPrice = (price: number) => {
-    return new Intl.NumberFormat("id-ID", {
-      style: "currency",
-      currency: "IDR",
-      minimumFractionDigits: 0,
-      maximumFractionDigits: 0,
-    }).format(price);
-  };
+  useEffect(() => {
+    const fetchProfile = async () => {
+      if (!id) return;
+      try {
+        setLoading(true);
+        
+        const { data: profileData, error: profileError } = await (supabase as any)
+          .from("profiles")
+          .select("*")
+          .eq("user_id", id)
+          .maybeSingle();
+        
+        if (profileError) {
+          console.error("Error fetching profile:", profileError);
+          toast.error("Gagal memuat profil companion");
+          setLoading(false);
+          return;
+        }
+        
+        if (!profileData) {
+          console.log("Profile not found for id:", id);
+          toast.error("Profil tidak ditemukan");
+          setLoading(false);
+          return;
+        }
+        
+        let age = 0;
+        if (profileData.date_of_birth) {
+          const today = new Date();
+          const birth = new Date(profileData.date_of_birth);
+          age = today.getFullYear() - birth.getFullYear();
+          const monthDiff = today.getMonth() - birth.getMonth();
+          if (monthDiff < 0 || (monthDiff === 0 && today.getDate() < birth.getDate())) {
+            age--;
+          }
+        }
+        
+        const rating = profileData.is_verified ? 4.5 : 4.0;
+        const image = profileData.avatar_url || "/placeholder-avatar.png";
+        
+        const personality: string[] = Array.isArray(profileData.personality) ? profileData.personality : [];
+        const activities: string[] =
+          Array.isArray(profileData.activities) ? profileData.activities : Array.isArray(profileData.interests) ? profileData.interests : [];
+        const packages: { name: string; duration: string; price: number }[] = Array.isArray(profileData.packages) ? profileData.packages : [];
+        const availability: string = profileData.availability || "";
+        
+        const normalized = {
+          id: profileData.user_id || id,
+          name: profileData.full_name || profileData.username || "Unknown",
+          age,
+          city: profileData.city || "",
+          rating,
+          hourlyRate: (() => {
+            const explicit = Number(profileData.hourly_rate);
+            if (Number.isFinite(explicit) && explicit > 0) return explicit;
+            if (packages && packages.length > 0) {
+              const prices = packages
+                .map((pkg) => {
+                  const duration = parseInt(String(pkg.duration)) || 1;
+                  return (Number(pkg.price) || 0) / duration;
+                })
+                .filter((price) => price > 0);
+              if (prices.length > 0) return Math.min(...prices);
+            }
+            return 0;
+          })(),
+          image,
+          bio: profileData.bio || "",
+          description: profileData.bio || "",
+          personality,
+          activities,
+          availability,
+          packages,
+          is_online: profileData.is_online || false, // Assuming is_online exists or defaulting
+        };
+        
+        setDynamicCompanion(normalized);
+      } catch (err) {
+        console.error("Error in fetchProfile:", err);
+      } finally {
+        setLoading(false);
+      }
+    };
+    fetchProfile();
+  }, [id]);
 
-  if (!companion) {
+  if (loading) {
     return (
       <MobileLayout showFooter={false}>
         <div className="min-h-[60vh] flex items-center justify-center">
           <div className="text-center px-4">
             <h1 className="text-xl md:text-2xl font-display text-foreground mb-4">
-              Pacar sewaan nggak ketemu nih 😢
+              Memuat profil...
             </h1>
-            <Button variant="gradient" asChild>
-              <Link to="/companions">Lihat Yang Lain</Link>
+          </div>
+        </div>
+      </MobileLayout>
+    );
+  }
+
+  if (!dynamicCompanion) {
+    return (
+      <MobileLayout showFooter={false}>
+        <div className="min-h-[60vh] flex items-center justify-center">
+          <div className="text-center px-4">
+            <h1 className="text-xl md:text-2xl font-display text-foreground mb-4">
+              Profil tidak ditemukan 😢
+            </h1>
+            <Button variant="gradient" onClick={() => (window.history.length > 1 ? navigate(-1) : navigate("/"))}>
+              Lihat Yang Lain
             </Button>
           </div>
         </div>
@@ -58,210 +160,154 @@ const CompanionProfile = () => {
     );
   }
 
+  const active = dynamicCompanion;
+
   const handleChatClick = () => {
     if (!user) {
       toast.info("Silakan login terlebih dahulu untuk chat");
       navigate("/auth");
       return;
     }
-    // Navigate to companion chat page
-    navigate(`/companion-chat/${companion.id}`);
+    navigate(`/companion-chat/${active.id}`);
   };
 
-  const handleBookPackage = (pkg: { name: string; duration: string; price: number }) => {
+  const handleBookPackage = () => {
     if (!user) {
-      toast.info("Silakan login terlebih dahulu untuk booking");
+      toast.info("Silakan login terlebih dahulu untuk memesan");
       navigate("/auth");
       return;
     }
-    setSelectedPackage(pkg);
-    setShowPaymentDialog(true);
+    setIsBookingWizardOpen(true);
   };
 
-  const handlePaymentSuccess = (payment: Payment) => {
-    toast.success("Booking berhasil! Menunggu konfirmasi admin.");
+  const handleBookingSuccess = () => {
+    toast.success("Pemesanan berhasil! Menunggu konfirmasi admin.");
   };
 
   return (
     <MobileLayout showFooter={false}>
-      <main className="pt-4 md:pt-24 pb-40 md:pb-0">
-        <div className="container mx-auto px-4">
+      <main className="pt-4 md:pt-16 pb-32 bg-background min-h-screen">
+        <div className="container mx-auto px-4 md:px-6 max-w-5xl">
           {/* Back Button */}
           <motion.div
             initial={{ opacity: 0, x: -20 }}
             animate={{ opacity: 1, x: 0 }}
-            className="mb-4 md:mb-8"
+            className="mb-6"
           >
-            <Link
-              to="/companions"
-              className="inline-flex items-center gap-2 text-muted-foreground hover:text-foreground transition-colors text-sm md:text-base"
+            <Button
+              variant="ghost"
+              onClick={() => {
+                const from = (location.state as { from?: string } | null)?.from as string | undefined;
+                if (from) {
+                  navigate(from);
+                } else if (window.history.length > 1) {
+                  navigate(-1);
+                } else {
+                  navigate("/");
+                }
+              }}
+              className="inline-flex items-center gap-2 text-muted-foreground hover:text-foreground transition-colors"
             >
-              <ChevronLeft size={18} />
+              <ChevronLeft size={20} />
               <span>Kembali</span>
-            </Link>
+            </Button>
           </motion.div>
 
-          <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 md:gap-12">
-            {/* Image */}
-            <motion.div
-              initial={{ opacity: 0, y: 30 }}
-              animate={{ opacity: 1, y: 0 }}
-              className="relative"
-            >
-              <div className="aspect-[4/5] md:aspect-[3/4] rounded-2xl md:rounded-3xl overflow-hidden">
-                <img
-                  src={companion.image}
-                  alt={companion.name}
-                  className="w-full h-full object-cover"
-                />
-              </div>
-              <div className="absolute top-4 md:top-6 right-4 md:right-6 flex items-center gap-2 bg-background/90 backdrop-blur-sm px-3 md:px-4 py-2 rounded-full">
-                <Star size={16} className="text-primary fill-primary" />
-                <span className="font-semibold text-foreground text-sm md:text-base">{companion.rating}</span>
-              </div>
-            </motion.div>
+          {/* Profile Header */}
+          <motion.section
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            className="mb-8 md:mb-12"
+          >
+            <ProfileHeader
+              name={active.name}
+              image={active.image}
+              rating={active.rating}
+              reviewCount={12} // Mock for now or add to fetch
+              hourlyRate={active.hourlyRate}
+              isOnline={active.is_online}
+              city={active.city}
+            />
+          </motion.section>
 
-            {/* Details */}
+          {/* Main Layout Grid */}
+          <div className="grid grid-cols-1 lg:grid-cols-[1fr_350px] gap-10">
+            {/* Left Column - Main Info */}
             <motion.div
-              initial={{ opacity: 0, y: 30 }}
+              initial={{ opacity: 0, y: 20 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ delay: 0.1 }}
-              className="flex flex-col"
+              className="space-y-10"
             >
-              {/* Header */}
-              <div className="mb-6 md:mb-8">
-                <h1 className="text-2xl md:text-4xl lg:text-5xl font-display font-bold text-foreground mb-2">
-                  {companion.name}
-                </h1>
-                <div className="flex flex-wrap items-center gap-3 md:gap-4 text-muted-foreground text-sm">
-                  <span className="flex items-center gap-1">
-                    <MapPin size={14} />
-                    {companion.city}
-                  </span>
-                  <span>{companion.age} tahun</span>
-                  <span className="flex items-center gap-1">
-                    <Clock size={14} />
-                    {companion.availability}
-                  </span>
-                </div>
-                <p className="text-xl md:text-2xl font-semibold text-primary mt-3 md:mt-4">
-                  {formatPrice(companion.hourlyRate)}/jam
-                </p>
+              {/* Action Buttons (Mobile only, or placed here for flow) */}
+              <div className="lg:hidden">
+                <ProfileActions 
+                  onChat={handleChatClick} 
+                  onBook={handleBookPackage} 
+                  isOwnProfile={(myProfile?.role as any) === "companion"}
+                />
               </div>
 
-              {/* Description */}
-              <div className="mb-6 md:mb-8">
-                <h2 className="text-lg md:text-xl font-display font-semibold text-foreground mb-2 md:mb-3">
-                  Tentang Aku
-                </h2>
-                <p className="text-muted-foreground leading-relaxed text-sm md:text-base">
-                  {companion.description}
-                </p>
-              </div>
+              {/* Info Section */}
+              <section>
+                <ProfileInfo
+                  about={active.description || active.bio}
+                  age={active.age}
+                  city={active.city}
+                  serviceType="Online & Offline" // Derived or static
+                  experience="1 Tahun" // Derived or static
+                />
+              </section>
 
-              {/* Personality */}
-              <div className="mb-6 md:mb-8">
-                <h2 className="text-lg md:text-xl font-display font-semibold text-foreground mb-2 md:mb-3">
-                  Kepribadian
-                </h2>
-                <div className="flex flex-wrap gap-2">
-                  {companion.personality.map((trait) => (
-                    <Badge
-                      key={trait}
-                      variant="outline"
-                      className="border-primary/30 text-foreground px-3 md:px-4 py-1.5 md:py-2 text-xs md:text-sm"
-                    >
-                      {trait}
-                    </Badge>
-                  ))}
-                </div>
-              </div>
-
-              {/* Activities */}
-              <div className="mb-6 md:mb-8">
-                <h2 className="text-lg md:text-xl font-display font-semibold text-foreground mb-2 md:mb-3">
-                  Bisa Nemenin Untuk
-                </h2>
-                <ul className="grid grid-cols-2 gap-2 md:gap-3">
-                  {companion.activities.map((activity) => (
-                    <li key={activity} className="flex items-center gap-2 text-muted-foreground text-sm md:text-base">
-                      <Check size={14} className="text-primary shrink-0" />
-                      {activity}
-                    </li>
-                  ))}
-                </ul>
-              </div>
-
-              {/* Packages */}
-              <div className="mb-6 md:mb-8">
-                <h2 className="text-lg md:text-xl font-display font-semibold text-foreground mb-2 md:mb-3">
-                  Paket Tersedia
-                </h2>
-                <div className="grid gap-2 md:gap-3">
-                  {companion.packages.map((pkg) => (
-                    <div
-                      key={pkg.name}
-                      className="flex items-center justify-between p-3 md:p-4 bg-card rounded-xl border border-border"
-                    >
-                      <div>
-                        <p className="font-semibold text-foreground text-sm md:text-base">{pkg.name}</p>
-                        <p className="text-xs md:text-sm text-muted-foreground">{pkg.duration}</p>
-                      </div>
-                      <div className="flex items-center gap-2">
-                        <p className="text-lg md:text-xl font-semibold text-primary">{formatPrice(pkg.price)}</p>
-                        <Button
-                          size="sm"
-                          variant="gradient"
-                          onClick={() => handleBookPackage(pkg)}
-                        >
-                          <CreditCard className="w-4 h-4 mr-1" />
-                          Booking
-                        </Button>
-                      </div>
-                    </div>
-                  ))}
-                </div>
-              </div>
+              {/* Reviews Section */}
+              <section>
+                <ProfileReviews rating={active.rating} reviewCount={12} />
+              </section>
             </motion.div>
-          </div>
-        </div>
 
-        {/* Fixed CTA for mobile */}
-        <div className="fixed bottom-20 left-0 right-0 p-4 bg-background/95 backdrop-blur-xl border-t border-border md:hidden z-40">
-          <div className="flex gap-3">
-            <Button variant="gradient" className="flex-1" onClick={handleChatClick}>
-              <MessageCircle size={18} />
-              Chat Sekarang
-            </Button>
-            <Button variant="outline" size="icon" className="h-12 w-12 shrink-0">
-              <Heart size={18} />
-            </Button>
-          </div>
-        </div>
+            {/* Right Column - Sidebar / Service Details */}
+            <motion.div
+              initial={{ opacity: 0, x: 20 }}
+              animate={{ opacity: 1, x: 0 }}
+              transition={{ delay: 0.2 }}
+              className="space-y-6"
+            >
+              {/* Desktop Actions */}
+              <div className="hidden lg:block">
+                <ProfileActions 
+                  onChat={handleChatClick} 
+                  onBook={handleBookPackage}
+                  isOwnProfile={(myProfile?.role as any) === "companion"}
+                />
+              </div>
 
-        {/* Desktop CTA */}
-        <div className="hidden md:block container mx-auto px-4 py-8">
-          <div className="flex flex-col sm:flex-row gap-4 max-w-md">
-            <Button variant="gradient" size="lg" className="flex-1" onClick={handleChatClick}>
-              <MessageCircle size={18} />
-              Chat Sekarang
-            </Button>
-            <Button variant="outline" size="lg" className="flex-1">
-              <Heart size={18} />
-              Simpan ke Favorit
-            </Button>
+              <ServiceDetails
+                hourlyRate={active.hourlyRate}
+                minDuration={2}
+                packages={active.packages}
+                notes="Harga belum termasuk biaya transportasi/makan jika offline."
+              />
+
+              <ScheduleInfo availability={active.availability} />
+            </motion.div>
           </div>
         </div>
       </main>
 
-      {/* Payment Dialog */}
-      {selectedPackage && (
-        <BookingPaymentDialog
-          open={showPaymentDialog}
-          onOpenChange={setShowPaymentDialog}
-          companion={companion}
-          selectedPackage={selectedPackage}
-          onSuccess={handlePaymentSuccess}
+      {/* Booking Wizard */}
+      {active && (
+        <BookingWizard
+          open={isBookingWizardOpen}
+          onOpenChange={setIsBookingWizardOpen}
+          companion={{
+            id: active.id,
+            name: active.name,
+            image: active.image,
+            city: active.city,
+            hourlyRate: active.hourlyRate,
+            packages: active.packages,
+          }}
+          onSuccess={handleBookingSuccess}
         />
       )}
     </MobileLayout>

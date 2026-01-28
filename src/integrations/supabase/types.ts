@@ -198,7 +198,11 @@ export type Database = {
         Row: {
           content: string
           created_at: string
+          deleted_at: string | null
+          deleted_by: string | null
+          deleted_for_all: boolean | null
           id: string
+          is_deleted: boolean | null
           is_read: boolean | null
           receiver_id: string
           sender_id: string
@@ -206,7 +210,11 @@ export type Database = {
         Insert: {
           content: string
           created_at?: string
+          deleted_at?: string | null
+          deleted_by?: string | null
+          deleted_for_all?: boolean | null
           id?: string
+          is_deleted?: boolean | null
           is_read?: boolean | null
           receiver_id: string
           sender_id: string
@@ -214,7 +222,11 @@ export type Database = {
         Update: {
           content?: string
           created_at?: string
+          deleted_at?: string | null
+          deleted_by?: string | null
+          deleted_for_all?: boolean | null
           id?: string
+          is_deleted?: boolean | null
           is_read?: boolean | null
           receiver_id?: string
           sender_id?: string
